@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.compose.compiler:compiler:1.1.0-rc02")
+    implementation("androidx.compose.compiler:compiler:1.2.0-alpha01")
 }
 
 android {
@@ -54,5 +54,5 @@ dependencies {
     // Material design icons
     implementation("androidx.compose.material:material-icons-core:1.0.5")
     implementation("androidx.compose.material:material-icons-extended:1.0.5")
-    implementation("androidx.appcompat:appcompat:1.4.0")
+    implementation("androidx.appcompat:appcompat:1.4.1")
 }

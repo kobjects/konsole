@@ -24,6 +24,7 @@ kotlin {
     
     sourceSets {
         val commonMain by getting
+        /*
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test-common"))
@@ -68,6 +69,8 @@ kotlin {
             iosArm64Test.dependsOn(this)
             //iosSimulatorArm64Test.dependsOn(this)
         }
+
+         */
     }
 }
 
