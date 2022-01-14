@@ -5,7 +5,10 @@ interface Konsole {
 
     fun print(s: String)
 
-    fun read(value: (String) -> Unit)
+    fun input(
+        label: String = "",
+        validation: (String) -> String = {""},
+        handler: (String) -> Unit)
 
 
 }

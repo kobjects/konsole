@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +26,8 @@ fun RenderKonsole(
     modifier: Modifier = Modifier.fillMaxSize(1f),
     konsole: ComposeKonsole
 ) {
+    var errorMessage = remember { mutableStateOf("") }
+
     Column(modifier) {
         LazyColumn(Modifier.weight(1f)) {
             itemsIndexed(konsole.entries) { index, entry ->
@@ -51,19 +54,35 @@ fun RenderKonsole(
         Row () {
             TextField(
                 modifier = Modifier.weight(1f).height(56.dp),
+                isError = errorMessage.value != "",
                 enabled = topRequest != null,
                 value = textState.value,
-                onValueChange = { textState.value = it }
+                label = {
+                    if (errorMessage.value != "") {
+                        Text(errorMessage.value)
+                    } else if (!topRequest?.label.isNullOrEmpty()) {
+                        Text(topRequest!!.label)
+                    } },
+                onValueChange = {
+                    textState.value = it
+                    if (errorMessage.value != "") {
+                        errorMessage.value =
+                            topRequest?.validation?.invoke(textState.value.text) ?: ""
+                    }
+                }
             )
             Button(
                 modifier = Modifier.height(56.dp),
                 enabled = topRequest != null,
                 onClick = {
                     val text = textState.value.text
-                    konsole.entries.add(ComposeKonsole.Entry(text, true))
-                    topRequest!!.consumer(text)
-                    textState.value = TextFieldValue()
-                    konsole.requests.removeAt(0)
+                    errorMessage.value = topRequest?.validation?.invoke(textState.value.text) ?: ""
+                    if (errorMessage.value == "") {
+                        konsole.entries.add(ComposeKonsole.Entry(text, true))
+                        topRequest!!.consumer(text)
+                        textState.value = TextFieldValue()
+                        konsole.requests.removeAt(0)
+                    }
                 }) {
                 Text("Enter")
             }

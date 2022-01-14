@@ -11,13 +11,16 @@ class ComposeKonsole : Konsole {
         entries.add(Entry(s, input = false))
     }
 
-    override fun read(consumer: (String) -> Unit) {
-        requests.add(Request(consumer))
+    override fun input(label: String, validation: (String) -> String, consumer: (String) -> Unit) {
+        requests.add(Request(label, validation, consumer))
     }
 
 
     data class Entry(val value: String, val input: Boolean)
 
-    data class Request(val consumer: (String) -> Unit)
+    data class Request(
+        val label: String,
+        val validation: (String) -> String,
+        val consumer: (String) -> Unit)
 
 }
