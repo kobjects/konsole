@@ -15,7 +15,7 @@ kotlin {
     android()
     iosX64()
     iosArm64()
-    //iosSimulatorArm64() sure all ios dependencies support this target
+    iosSimulatorArm64() // sure all ios dependencies support this target
 
     cocoapods {
         summary = "Some description for the Shared Module"
@@ -41,16 +41,16 @@ kotlin {
                 implementation(kotlin("test-junit"))
                 implementation("junit:junit:4.13.2")
             }
-        }
+        } */
         val iosX64Main by getting
         val iosArm64Main by getting
-        //val iosSimulatorArm64Main by getting
+        val iosSimulatorArm64Main by getting
         val iosMain by creating {
             dependsOn(commonMain)
             iosX64Main.dependsOn(this)
             iosArm64Main.dependsOn(this)
-            //iosSimulatorArm64Main.dependsOn(this)
-        }
+            iosSimulatorArm64Main.dependsOn(this)
+        } /*
         val iosX64Test by getting
         val iosArm64Test by getting
         //val iosSimulatorArm64Test by getting
