@@ -51,18 +51,33 @@ fun RenderKonsole(
 
         val topRequest = if (konsole.requests.isEmpty()) null else konsole.requests.first()
 
+        fun submit() {
+            val text = textState.value.text
+            errorMessage.value = topRequest?.validation?.invoke(textState.value.text) ?: ""
+            if (errorMessage.value == "") {
+                konsole.entries.add(ComposeKonsole.Entry(text, true))
+                topRequest!!.consumer(text)
+                textState.value = TextFieldValue()
+                konsole.requests.removeAt(0)
+            }
+        }
+
         Row () {
             TextField(
-                modifier = Modifier.weight(1f).height(56.dp),
+                modifier = Modifier.weight(1f),
                 isError = errorMessage.value != "",
                 enabled = topRequest != null,
                 value = textState.value,
+                singleLine = true,
                 label = {
                     if (errorMessage.value != "") {
                         Text(errorMessage.value)
                     } else if (!topRequest?.label.isNullOrEmpty()) {
                         Text(topRequest!!.label)
                     } },
+                keyboardActions = KeyboardActions (
+                    onDone = { submit() },
+                    onSend = { submit() }),
                 onValueChange = {
                     textState.value = it
                     if (errorMessage.value != "") {
@@ -75,14 +90,7 @@ fun RenderKonsole(
                 modifier = Modifier.height(56.dp),
                 enabled = topRequest != null,
                 onClick = {
-                    val text = textState.value.text
-                    errorMessage.value = topRequest?.validation?.invoke(textState.value.text) ?: ""
-                    if (errorMessage.value == "") {
-                        konsole.entries.add(ComposeKonsole.Entry(text, true))
-                        topRequest!!.consumer(text)
-                        textState.value = TextFieldValue()
-                        konsole.requests.removeAt(0)
-                    }
+                    submit()
                 }) {
                 Text("Enter")
             }

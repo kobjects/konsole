@@ -5,7 +5,8 @@
     <application
         android:allowBackup="false"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+        >
         <activity
             android:name="org.kobjects.konsole.android.MainActivity"
             android:windowSoftInputMode="stateVisible|adjustResize"

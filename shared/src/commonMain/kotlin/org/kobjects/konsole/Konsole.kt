@@ -3,12 +3,12 @@ package org.kobjects.konsole
 interface Konsole {
 
 
-    fun print(s: String)
+    fun write(s: String)
 
-    fun input(
+    suspend fun read(
         label: String = "",
-        validation: (String) -> String = {""},
-        handler: (String) -> Unit)
+        validation: (String) -> String = {""}
+    ): String
 
 
 }

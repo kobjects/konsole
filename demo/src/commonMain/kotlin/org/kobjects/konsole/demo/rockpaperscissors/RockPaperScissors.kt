@@ -1,11 +1,9 @@
 import org.kobjects.konsole.Konsole
 import kotlin.random.Random
 
-
 enum class Choice {
    ROCK, PAPER, SCISSORS
 }
-
 
 fun processInput(input: String): Choice? =
     when (input.trim().lowercase()) {
@@ -39,18 +37,24 @@ fun compare(userChoice: Choice, computerChoice: Choice) =
         }
     }
 
-
-fun rockPaperScissors(konsole: Konsole) {
-    konsole.input(
-       "Rock, paper or scissors?",
-        validation = {validateInput(it)}
-    ) {
-            val userChoice = processInput(it)!!
-            val computerChoice = Choice.values()[Random.nextInt(0, 3)]
-
-            konsole.print("I chose ${computerChoice.toString().lowercase()}")
-            konsole.print(compare(userChoice, computerChoice))
-
-            rockPaperScissors(konsole)
+suspend fun readUserChoice(konsole: Konsole): Choice {
+    konsole.write("Rock, paper or scissors?")
+    while (true) {
+        val input = konsole.read()
+        val errorMessage = validateInput(input)
+        if (errorMessage.isEmpty()) {
+            return processInput(input)!!
+        }
+        konsole.write(errorMessage)
     }
 }
+
+suspend fun rockPaperScissors(konsole: Konsole) {
+    while (true) {
+        val userChoice = readUserChoice(konsole)
+        val computerChoice = Choice.values()[Random.nextInt(0, 3)]
+
+        konsole.write("I chose ${computerChoice.toString().lowercase()}")
+        konsole.write(compare(userChoice, computerChoice))
+    }
+ }
