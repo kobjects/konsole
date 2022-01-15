@@ -24,6 +24,10 @@ kotlin {
         framework {
             baseName = "demo"
         }
+        /* pod("shared") {
+            version = "1.0"
+            path ( project.file("../shared"))
+        }*/
     }
     
     sourceSets {

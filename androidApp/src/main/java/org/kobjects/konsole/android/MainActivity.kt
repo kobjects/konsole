@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 import org.kobjects.konsole.Konsole
 import org.kobjects.konsole.compose.ComposeKonsole
 import org.kobjects.konsole.compose.RenderKonsole
-import org.kobjects.konsole.demo.konsoleDemos
+import org.kobjects.konsole.demo.Demo
 import kotlin.coroutines.CoroutineContext
 
 
@@ -69,9 +69,9 @@ class MainActivity : AppCompatActivity() {
                     .padding(8.dp)
                     .fillMaxSize(1f)
             ) {
-                items(konsoleDemos.entries.toList()) { entry ->
-                    Button(onClick = { viewModel.show(entry.key, entry.value) }) {
-                        Text(entry.key)
+                items(Demo.ALL) { demo ->
+                    Button(onClick = { viewModel.show(demo.name, demo.code) }) {
+                        Text(demo.name)
                     }
                 }
             }
