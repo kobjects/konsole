@@ -6,11 +6,20 @@ struct ContentView: View {
 	let greet = "HelloWorld"
 
 	var body: some View {
-		    Text(Demo.Companion.shared.ALL[0].name)
+	    NavigationView {
+	        List(Demo.Companion.shared.ALL, id: \.name) { demo in
+	            NavigationLink {
+    		        DemoView(demo: demo)
+	    	    } label: {
+	    	        Text(demo.name)
+	    	    }
+		    }
+            .navigationTitle("KonsoleDemo")
+		}
 	}
 }
 
-struct ContentView_Previews: PreviewProvider {
+struct MenuView_Previews: PreviewProvider {
 	static var previews: some View {
 		ContentView()
 	}
