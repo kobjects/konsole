@@ -12,5 +12,16 @@ class Demo(
             Demo("Rock, Paper, Scissors", ::rockPaperScissors)
         )
     }
+
 }
+
+class DemoKonsolePair(
+    val demo: Demo,
+    val konsole: Konsole
+    ) {
+    suspend fun run() {
+        demo.code(konsole)
+    }
+}
+
 

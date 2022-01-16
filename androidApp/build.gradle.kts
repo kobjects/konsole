@@ -40,7 +40,6 @@ android {
 }
 
 dependencies {
-    implementation(project(":demo"))
     implementation(project(":compose"))
     implementation(project(":shared"))
     implementation("androidx.activity:activity-compose:1.4.0")

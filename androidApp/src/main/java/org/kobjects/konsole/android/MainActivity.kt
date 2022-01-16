@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 import org.kobjects.konsole.Konsole
 import org.kobjects.konsole.compose.ComposeKonsole
 import org.kobjects.konsole.compose.RenderKonsole
-import org.kobjects.konsole.demo.Demo
+import demo.Demo
 import kotlin.coroutines.CoroutineContext
 
 
