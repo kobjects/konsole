@@ -10,4 +10,3 @@ rootProject.name = "konsole"
 include(":androidApp")
 include(":shared")
 include(":compose")
-include(":demo")

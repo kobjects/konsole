@@ -27,12 +27,12 @@ class ComposeKonsole : Konsole, ViewModel() {
         entries.add(Entry(s, input = false))
     }
 
-    override suspend fun read(label: String, validation: (String) -> String): String =
-        suspendCoroutine { cont ->
-            requests.add(Request(label, validation) { cont.resume(it) })
-        }
-
-
+    override fun readThen(
+        label: String,
+        validation: (String) -> String,
+        consumer: (String) -> Unit) {
+        requests.add(Request(label, validation, consumer))
+    }
 
     data class Entry(val value: String, val input: Boolean)
 

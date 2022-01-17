@@ -1,4 +1,4 @@
-package org.kobjects.konsole.demo
+package demo
 
 import org.kobjects.konsole.Konsole
 import rockPaperScissors
@@ -13,15 +13,9 @@ class Demo(
         )
     }
 
-}
-
-class DemoKonsolePair(
-    val demo: Demo,
-    val konsole: Konsole
-    ) {
-    suspend fun run() {
-        demo.code(konsole)
+    suspend fun run(konsole: Konsole) {
+        println("run $this")
+        code(konsole)
     }
 }
-
 
