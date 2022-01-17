@@ -1,6 +1,6 @@
-package demo
+package org.kobjects.konsole.demo
 
-import demo.banner.banner
+import org.kobjects.konsole.demo.banner.banner
 import org.kobjects.konsole.Konsole
 import rockPaperScissors
 

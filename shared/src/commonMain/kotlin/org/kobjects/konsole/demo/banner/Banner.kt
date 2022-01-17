@@ -1,4 +1,4 @@
-package demo.banner
+package org.kobjects.konsole.demo.banner
 
 import org.kobjects.konsole.Konsole
 
