@@ -12,6 +12,13 @@ kotlin {
     iosArm64()
     iosSimulatorArm64() // sure all ios dependencies support this target
 
+
+    js(IR) {
+        useCommonJs()
+      //  browser()
+    }
+
+
     cocoapods {
         summary = "Some description for the Shared Module"
         homepage = "Link to the Shared Module homepage"
@@ -75,7 +82,7 @@ kotlin {
 }
 
 dependencies {
-    implementation("androidx.compose.compiler:compiler:1.1.0-rc02")
+    implementation("androidx.compose.compiler:compiler:1.2.0-alpha01")
 }
 android {
     compileSdk = 32
