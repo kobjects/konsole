@@ -22,6 +22,7 @@ suspend fun banner(konsole: Konsole) {
         var i = 0
         while (i < statement.length) {
             val c = statement[i++]
+            // surrogate pair handling
             val cp = if (c in '\ud800' .. '\ud8ff') "" + c + statement[i++] else "" + c
             sb.append((FONT[cp] ?: FONT["?"]!!).trimIndent());
             sb.append("\n⬜⬜⬜⬜⬜⬜⬜\n")
@@ -76,6 +77,7 @@ val FONT = mapOf(
         ⬛⬛⬛⬛⬛⬛⬛""",
     "J" to """
         ⬜⬛⬛⬜⬜⬜⬜
+        ⬛⬜⬜⬜⬜⬜⬜
         ⬛⬜⬜⬜⬜⬜⬜
         ⬜⬛⬛⬛⬛⬛⬛""",
     "K" to """
@@ -154,10 +156,11 @@ val FONT = mapOf(
         ⬜⬜⬛⬜⬛⬜⬜
         ⬛⬛⬜⬜⬜⬛⬛""",
     "Y" to """
-        ⬜⬜⬜⬜⬛⬛⬛
-        ⬛⬜⬜⬛⬜⬜⬜
-        ⬛⬜⬜⬛⬜⬜⬜
-        ⬜⬛⬛⬛⬛⬛⬛""",
+        ⬜⬜⬜⬜⬜⬛⬛
+        ⬜⬜⬜⬜⬛⬜⬜
+        ⬛⬛⬛⬛⬜⬜⬜
+        ⬜⬜⬜⬜⬛⬜⬜
+        ⬜⬜⬜⬜⬜⬛⬛""",
     "Z" to """
         ⬛⬛⬜⬜⬜⬜⬛
         ⬛⬜⬛⬛⬜⬜⬛

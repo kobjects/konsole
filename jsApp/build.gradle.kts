@@ -4,12 +4,14 @@ plugins {
 }
 
 dependencies {
-    // implementation(project(":shared"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+    implementation(project(":shared"))
 }
 
 kotlin {
 
     js(IR) {
-  //     browser()
+       browser()
+        binaries.executable()
     }
 }

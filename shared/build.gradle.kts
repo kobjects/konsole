@@ -14,8 +14,8 @@ kotlin {
 
 
     js(IR) {
-        useCommonJs()
-      //  browser()
+      //  useCommonJs()
+        browser()
     }
 
 

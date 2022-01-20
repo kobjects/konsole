@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%; margin:0">
+<head>
+    <meta charset="UTF-8">
+    <style>
+    a:hover, a:visited, a:link, a:active
+{
+    text-decoration: none;
+}
+        html {
+            background-color: rgb(242,242,242);
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            margin:0 auto;
+            padding: 0;
+            max-width: 520px;
+            box-sizing: border-box;
+            font-size: 16px;
+            height: 100%;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: white;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+        #konsole {
+            height: 100%
+        }
+
+    </style>
+    <link rel="stylesheet" type ="text/css" href="konsole.css" />
+    <title>Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body style="height: 100%;  ">
+ <div id="menu">
+     101 Kotlin Konsole Apps
+     <ul id="menuList">
+     </ul>
+ </div>
+ <div id="konsole" style="display:none;  flex-direction: column;">
+   <div style="display: flex; border-bottom: 1px solid rgb(212, 212, 212); height:48px; align-items:center">
+       <div id="konsole-back" style="font-size:24px;"><a href="#">&nbsp;‹&nbsp;</a></div>
+       <div id="konsole-title" style="font-size:24px">Title</div>
+
+   </div>
+   <div id="konsole-content" style="flex: 1"></div>
+ </div>
+ <script src="jsApp.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+
+        .konsole-root {
+            box-sizing: border-box;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .konsole-content-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            gap: 2px;
+            padding: 10px 20px;
+        }
+        .konsole-bubble-input, .konsole-bubble-output {
+            border-radius: 8px;
+            white-space:pre-wrap;
+            padding: 10px 12px;
+            width: fit-content;
+        }
+        .konsole-bubble-input {
+            align-self: flex-end;
+            border-bottom-right-radius: 1px;
+            background-color: rgb(70, 160, 255);
+            color: #fff;
+        }
+        .konsole-bubble-output {
+            background-color: rgb(242, 242, 242);
+            border-bottom-left-radius: 1px;
+        }
+        .konsole-input-container {
+            height: 48px;
+            border-top: 1px solid rgb(212, 212, 212);
+            display: flex;
+            padding: 16px;
+            gap: 16px;
+            align-items: center;
+        }
+        .konsole-input {
+            border: none;
+            resize: none;
+            padding: 16px;
+            flex: 1;
+        }
+        .konsole-button {
+            background-color: rgb(242, 242, 242);
+            color: rgb(128, 128, 128);
+            padding: 10px 20px;
+            border-radius: 24px;
+        }
