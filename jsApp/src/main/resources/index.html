@@ -12,41 +12,38 @@
             height: 100%;
             margin: 0;
             padding: 0;
+            overflow: hidden;
         }
         body {
-            margin:0 auto;
-            padding: 0;
-            max-width: 520px;
-            box-sizing: border-box;
-            font-size: 16px;
-            height: 100%;
-            font-family: Arial, Helvetica, sans-serif;
             background-color: white;
+            box-sizing: border-box;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            display:flex;
+            flex-direction:column;
+            font-size: 16px;
+            font-family: Arial, Helvetica, sans-serif;
+            height: 100%;
+            max-width: 640px;
+            margin:0 auto;
+            overflow:hidden;
+            padding: 0;
         }
-        #konsole {
-            height: 100%
-        }
-
     </style>
     <link rel="stylesheet" type ="text/css" href="konsole.css" />
     <title>Test</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-<body style="height: 100%;  ">
- <div id="menu">
-     101 Kotlin Konsole Apps
-     <ul id="menuList">
-     </ul>
- </div>
- <div id="konsole" style="display:none;  flex-direction: column;">
-   <div style="display: flex; border-bottom: 1px solid rgb(212, 212, 212); height:48px; align-items:center">
-       <div id="konsole-back" style="font-size:24px;"><a href="#">&nbsp;‹&nbsp;</a></div>
-       <div id="konsole-title" style="font-size:24px">Title</div>
-
+<body style="">
+   <div id="title"
+        style="padding:0 10px; display: flex; border-bottom: 1px solid rgb(212, 212, 212); height:48px; align-items:center">
+    101* KMP Konsole Apps
    </div>
-   <div id="konsole-content" style="flex: 1"></div>
- </div>
+   <div id="menu" style="flex: 1; flex-direction: column; overflow-y: auto; padding: 10px">
+       <ul id="menu-list"></ul>
+   </div>
+     <div id="konsole-container" style="flex: 1; flex-direction:column; overflow:hidden">
+
+     </div>
  <script src="jsApp.js"></script>
 </body>
 </html>

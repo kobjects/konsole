@@ -1,16 +1,20 @@
 
         .konsole-root {
             box-sizing: border-box;
-            height: 100%;
+         //   height: 100%;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+            flex: 1;
         }
         .konsole-content-container {
             display: flex;
-            flex-direction: column;
+            flex-direction: column-reverse;
             flex: 1;
             gap: 2px;
             padding: 10px 20px;
+            overflow-y: auto;
+         //   justify-content: flex-end;
         }
         .konsole-bubble-input, .konsole-bubble-output {
             border-radius: 8px;

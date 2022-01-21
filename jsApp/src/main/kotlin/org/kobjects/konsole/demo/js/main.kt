@@ -5,6 +5,7 @@ import kotlinx.browser.document
 import kotlinx.browser.window
 import org.kobjects.konsole.demo.Demo
 import org.kobjects.konsole.js.HtmlKonsole
+import org.kobjects.konsole.js.div
 import org.kobjects.konsole.js.element
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLUListElement
@@ -15,10 +16,9 @@ import kotlin.coroutines.*
 
 fun main() {
     val menuDiv = document.getElementById("menu")!! as HTMLDivElement
-    val menuList = document.getElementById("menuList")!! as HTMLUListElement
-    val konsoleDiv = document.getElementById("konsole")!! as HTMLDivElement
-    val konsoleTitle = document.getElementById("konsole-title")!! as HTMLDivElement
-    val konsoleContent = document.getElementById("konsole-content")!! as HTMLDivElement
+    val menuList = document.getElementById("menu-list")!! as HTMLUListElement
+    val konsoleContainer = document.getElementById("konsole-container")!! as HTMLDivElement
+    val title = document.getElementById("title")!! as HTMLDivElement
     val demoMap = mutableMapOf<String, Demo>()
 
     for (demo in Demo.ALL) {
@@ -29,20 +29,25 @@ fun main() {
         demoMap.put("#" + demo.name.replace(" ", "%20"), demo)
     }
 
+    menuDiv.appendChild(div("*) Well ${Demo.ALL.size} actually... ¯\\_(ツ)_/¯"))
 
     fun updateLocation() {
         val hash = window.location.hash
         val demo = demoMap[hash]
         if (demo == null) {
-            menuDiv.style.display = ""
-            konsoleDiv.style.display = "none"
+            menuDiv.style.display = "flex"
+            konsoleContainer.style.display = "none"
+            title.innerText = "101* KMP Konsole Apps"
         } else {
             menuDiv.style.display = "none"
-            konsoleDiv.style.display = "flex"
-            konsoleContent.innerText = ""
-            konsoleTitle.innerText = demo.name
+            konsoleContainer.style.display = "flex"
+            title.innerText = ""
+            title.appendChild(element("a", "href" to "#", element("b","‹\u00a0\u00a0")))
+            title.appendChild(document.createTextNode(demo.name))
+
             val konsole = HtmlKonsole()
-            konsoleContent.appendChild(konsole.root)
+            konsoleContainer.innerText = ""
+            konsoleContainer.appendChild(konsole.root)
             GlobalScope.launch {
                 demo.run(konsole)
             }
