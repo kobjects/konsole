@@ -1,7 +1,7 @@
 package org.kobjects.konsole.demo.checkers
 
 import org.kobjects.konsole.Konsole
-import java.lang.Math
+import kotlin.math.abs
 
 
 class Checkers(
@@ -9,7 +9,7 @@ class Checkers(
 ) {
 
     val r = mutableListOf(-99, 0, 0, 0, 0)
-    var s = List(8, { mutableListOf<Int>() })
+    var s = List(8, { MutableList(8, {0}) })
     var g = -1
     var data = listOf(1, 0, 1, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, -1, 0, -1, 15)
     var p = 0;
@@ -28,23 +28,18 @@ class Checkers(
     var v = 0
 
     suspend fun run() {
-        konsole.write(tab(32) + "CHECKERS\n");
-        konsole.write(tab(15) + "CREATIVE COMPUTING  MORRISTOWN, NEW JERSEY\n");
-        konsole.write("\n");
-        konsole.write("\n");
-        konsole.write("\n");
-        konsole.write("THIS IS THE GAME OF CHECKERS.  THE COMPUTER IS X,\n");
-        konsole.write("AND YOU ARE O.  THE COMPUTER WILL MOVE FIRST.\n");
-        konsole.write("SQUARES ARE REFERRED TO BY A COORDINATE SYSTEM.\n");
-        konsole.write("(0,0) IS THE LOWER LEFT CORNER\n");
-        konsole.write("(0,7) IS THE UPPER LEFT CORNER\n");
-        konsole.write("(7,0) IS THE LOWER RIGHT CORNER\n");
-        konsole.write("(7,7) IS THE UPPER RIGHT CORNER\n");
-        konsole.write("THE COMPUTER WILL TYPE '+TO' WHEN YOU HAVE ANOTHER\n");
-        konsole.write("JUMP.  TYPE TWO NEGATIVE NUMBERS IF YOU CANNOT JUMP.\n");
-        konsole.write("\n");
-        konsole.write("\n");
-        konsole.write("\n");
+        konsole.write("""
+            This is the game of Checkers. The computer is X,
+            and you are O. The computer will move first. 
+            squares are referred to by a coordinate system.""".trimIndent().replace('\n', ' '));
+        konsole.write("""
+            a1 is the lower left corner
+            a8 is the upper left corner
+            h1 is the lower right corner
+            h8 is the upper right corner""".trimIndent())
+        konsole.write("""
+            The computer will type '+TO' when you have another 
+            jump. Type two negative numbers if you cannot jump.""".trimIndent().replace('\n', ' '))
         for (x in 0..7) {
             for (y in 0..7) {
                 if (data[p] == 15) {
@@ -83,11 +78,10 @@ class Checkers(
                 }
             }
             if (r[0] == -99) {
-                print("\n");
-                print("YOU WIN.\n");
+                konsole.write("YOU WIN.\n");
                 break;
             }
-            print("FROM " + r[1] + "," + r[2] + " TO " + r[3] + "," + r[4]);
+            konsole.write("FROM " + r[1] + "," + r[2] + " TO " + r[3] + "," + r[4]);
             r[0] = -99;
             while (true) {
                 if (r[4] == 0) {	// Computer reaches the bottom
@@ -96,7 +90,7 @@ class Checkers(
                 }
                 s[r[3]][r[4]] = s[r[1]][r[2]];	// Move
                 s[r[1]][r[2]] = 0;
-                if (Math.abs(r[1] - r[3]) == 2) {
+                if (abs(r[1] - r[3]) == 2) {
                     s[(r[1] + r[3]) / 2][(r[2] + r[4]) / 2] = 0;	// Capture
                     x = r[3];
                     y = r[4];
@@ -123,22 +117,25 @@ class Checkers(
                 }
                 break;
             }
-            val str = StringBuilder()
+            val str = StringBuilder("\u3000ａ ｂ ｃ ｄ ｅ ｆ ｇ ｈ\n")
             for (y2 in 7 downTo 0) {
                 y = y2
+                str.append((0xff11 + y).toChar())
                 for (x2 in 0..7) {
                     x = x2
                     str.append(when (s[x][y]) {
-                        0 -> ". "
-                        1 -> "O "
-                        -1 -> "X "
-                        -2 -> "X*"
-                        2 -> "O*"
+                        0 -> if (((x + y) % 2) == 0) "\uD83D\uDFE9" else "🟧"
+                        1 -> "⚪"
+                        -1 -> "⚫"
+                        -2 -> "\uD83D\uDDA4"
+                        2 -> "\uD83E\uDD0D"
                         else -> throw IllegalStateException()
                     })
             }
+                str.append((0xff11 + y).toChar())
                 str.append("\n");
             }
+            str.append("\u3000ａ ｂ ｃ ｄ ｅ ｆ ｇ ｈ")
             konsole.write(str.toString())
             var z = 0;
             var t = 0;
@@ -151,39 +148,38 @@ class Checkers(
                 }
             }
             if (z != 1) {
-                print("\n");
-                print("I WIN.\n");
+                konsole.write("I WIN.\n");
                 break;
             }
             if (t != 1) {
-                print("\n");
-                print("YOU WIN.\n");
+                konsole.write("YOU WIN.\n");
                 break;
             }
             do {
-                print("FROM");
-                val str = konsole.read()
-                h = str.substring(str.indexOf(",") + 1).toInt();
-                e = str.toInt()
+                konsole.write("FROM");
+                val str = konsole.read().trim()
+                h = getY(str)
+                e = getX(str)
                 x = e
                 y = h
-            } while (s[x][y] <= 0)
+                konsole.write("x: $x, y: $y")
+            } while (x < 0 || y < 0 || s[x][y] <= 0)
             do {
-                print("TO");
-                val str = konsole.read()
-                b = str.substring(str.indexOf(",") + 1).toInt()
-                a = str.toInt()
+                konsole.write("TO");
+                val str = konsole.read().trim()
+                b = getY(str)
+                a = getX(str)
                 x = a
                 y = b;
-                if (s[x][y] == 0 && Math.abs(a - e) <= 2 && Math.abs(a - e) == Math.abs(b - h))
+                if (s[x][y] == 0 && abs(a - e) <= 2 &&  abs(a - e) == abs(b - h))
                     break;
-                print("WHAT?\n");
+                konsole.write("WHAT?\n");
             } while (true)
             i = 46;
             do {
                 s[a][b] = s[e][h]
                 s[e][h] = 0;
-                if (Math.abs(e - a) != 2)
+                if (abs(e - a) != 2)
                     break;
                 s[(e + a) / 2][(h + b) / 2] = 0;
                 var a1 = 0
@@ -191,11 +187,11 @@ class Checkers(
                 while (true) {
                     konsole.write("+TO");
                     val str = konsole.read()
-                    b1 = str.substring(str.indexOf(",") + 1).toInt()
-                    a1 = str.toInt()
+                    b1 = getY(str)
+                    a1 = getX(str)
                     if (a1 < 0)
                         break;
-                    if (s[a1][b1] == 0 && Math.abs(a1 - a) == 2 && Math.abs(b1 - b) == 2)
+                    if (s[a1][b1] == 0 &&  abs(a1 - a) == 2 &&  abs(b1 - b) == 2)
                         break;
                 }
                 if (a1 < 0)
@@ -232,7 +228,7 @@ class Checkers(
 
     fun eval_move() {
         if (v == 0 && s[x][y] == -1) q += 2
-        if (Math.abs(y - v) == 2) q += 5
+        if (abs(y - v) == 2) q += 5
         if (y == 7) q -= 2
         if (u == 0 || u == 7) q++
         var c = -1
@@ -264,6 +260,23 @@ class Checkers(
         }
         q = 0
     }
+
+    fun getX(pos: String): Int {
+        if (pos.length != 2) {
+            return -1
+        }
+        val n = pos[0].lowercaseChar() - 'a'
+        return if (n < 0 || n > 7) -1 else n
+    }
+
+    fun getY(pos: String): Int {
+        if (pos.length != 2) {
+            return -1
+        }
+        val n = pos[1] - '1'
+        return if (n < 0 || n > 7) -1 else n
+    }
+
 
     fun more_captures() {
         u = x + a
