@@ -37,6 +37,8 @@ class Poker(val konsole: Konsole) {
 
     fun im_busted() = print("I'M BUSTED.  CONGRATULATIONS!\n")
 
+    val printBuffer = StringBuilder()
+
 
     // 1740
     fun deal_card() {
@@ -213,9 +215,21 @@ class Poker(val konsole: Konsole) {
         i = 6;
     }
 
+    fun print(s: String) {
+        printBuffer.append(s)
+    }
+
+    fun println(s: String = "") {
+        print(s)
+        if (printBuffer.length > 0) {
+            konsole.write(printBuffer.toString())
+            printBuffer.clear()
+        }
+    }
+
     suspend fun get_prompt(question: String, def: String): String {
         konsole.write(question)
-        var str = konsole.read()
+        var str = input()
         return if (str.isBlank()) def else str
     }
 
@@ -403,11 +417,12 @@ class Poker(val konsole: Konsole) {
     }
 
     suspend fun input(): String {
+        println()
         return konsole.read()
     }
 
     // Main program
-    suspend fun main() {
+    suspend fun run() {
         print("POKER\n");
         print("CREATIVE COMPUTING  MORRISTOWN, NEW JERSEY\n");
         print("\n");
