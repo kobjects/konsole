@@ -7,238 +7,183 @@ import kotlin.math.abs
 class Checkers(
     val konsole: Konsole
 ) {
+    val impossibleMove = Move(-99, 0, 0, 0, 0)
+    val data = listOf(1, 0, 1, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, -1, 0, -1)
 
-    val r = mutableListOf(-99, 0, 0, 0, 0)
-    var s = List(8, { MutableList(8, {0}) })
-    var g = -1
-    var data = listOf(1, 0, 1, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, -1, 0, -1, 15)
-    var p = 0;
-    var q = 0;
-
-    var a = 0
-    var b = 0
-
-    var e = 0
-    var h = 0
-    var i = 0
-
-    var x = 0
-    var y = 0
-    var u = 0
-    var v = 0
+    val board = Array(8, { IntArray(8, {0}) })
+    val g = -1
 
     suspend fun run() {
+        while (true) {
+            game();
+        }
+    }
+
+    suspend fun game() {
         konsole.write("""
-            This is the game of Checkers. The computer is X,
-            and you are O. The computer will move first. 
-            squares are referred to by a coordinate system.""".trimIndent().replace('\n', ' '));
+            This is the game of Checkers. The computer is black,
+            and you are white. The computer will move first. 
+            Squares are referred to by a coordinate system.""".trimIndent().replace('\n', ' '));
         konsole.write("""
             a1 is the lower left corner
             a8 is the upper left corner
             h1 is the lower right corner
             h8 is the upper right corner""".trimIndent())
-        konsole.write("""
-            The computer will type '+TO' when you have another 
-            jump. Type two negative numbers if you cannot jump.""".trimIndent().replace('\n', ' '))
+        var p = 0
         for (x in 0..7) {
             for (y in 0..7) {
-                if (data[p] == 15) {
-                    p = 0;
-                }
-                s[x][y] = data[p];
-                p++;
+                board[x][y] = data[p++ % data.size]
             }
         }
 
         while (true) {
+            val description = computerMove()
+            if (description.isEmpty()) {
+                konsole.write("You win!")
+                break
+            }
+            konsole.write(description.toString())
+            konsole.write(renderBoard())
 
-            // Search the board for the best movement
-            for (x2 in 0..7) {
-                for (y2 in 0..7) {
-                    x = x2
-                    y = y2
-                    if (s[x][y] > -1) {
-                        continue;
-                    }
-                    if (s[x][y] == -1) {	// Piece
-                        for (a2 in -1.. 1 step 2) {
-                            a = a2
-                            b = g;	// Only advances
-                            try_computer();
-                        }
-                    } else if (s[x][y] == -2) {	// King
-                        for (a in -1..1 step 2) {
-                            for (b in -1..1 step 2) {
-                                this.a = a
-                                this.b = b
-                                try_computer();
-                            }
-                        }
-                    }
-                }
-            }
-            if (r[0] == -99) {
-                konsole.write("YOU WIN.\n");
-                break;
-            }
-            konsole.write("FROM " + r[1] + "," + r[2] + " TO " + r[3] + "," + r[4]);
-            r[0] = -99;
-            while (true) {
-                if (r[4] == 0) {	// Computer reaches the bottom
-                    s[r[3]][r[4]] = -2;	// King
-                    break;
-                }
-                s[r[3]][r[4]] = s[r[1]][r[2]];	// Move
-                s[r[1]][r[2]] = 0;
-                if (abs(r[1] - r[3]) == 2) {
-                    s[(r[1] + r[3]) / 2][(r[2] + r[4]) / 2] = 0;	// Capture
-                    x = r[3];
-                    y = r[4];
-                    if (s[x][y] == -1) {
-                        b = -2;
-                        for (a in -2..2 step 4) {
-                            this.a = a
-                            more_captures();
-                        }
-                    } else if (s[x][y] == -2) {
-                        for (a2 in -2..2 step 4) {
-                            for (b2 in -2..2 step 4) {
-                                a = a2
-                                b = b2
-                                more_captures();
-                            }
-                        }
-                    }
-                    if (r[0] != -99) {
-                        print(" TO " + r[3] + "," + r[4]);
-                        r[0] = -99;
-                        continue;
-                    }
-                }
-                break;
-            }
-            val str = StringBuilder("\u3000ａ ｂ ｃ ｄ ｅ ｆ ｇ ｈ\n")
-            for (y2 in 7 downTo 0) {
-                y = y2
-                str.append((0xff11 + y).toChar())
-                for (x2 in 0..7) {
-                    x = x2
-                    str.append(when (s[x][y]) {
-                        0 -> if (((x + y) % 2) == 0) "\uD83D\uDFE9" else "🟧"
-                        1 -> "⚪"
-                        -1 -> "⚫"
-                        -2 -> "\uD83D\uDDA4"
-                        2 -> "\uD83E\uDD0D"
-                        else -> throw IllegalStateException()
-                    })
-            }
-                str.append((0xff11 + y).toChar())
-                str.append("\n");
-            }
-            str.append("\u3000ａ ｂ ｃ ｄ ｅ ｆ ｇ ｈ")
-            konsole.write(str.toString())
-            var z = 0;
-            var t = 0;
+            var anyComputerPiece = false;
+            var anyPlayerPiece = false;
             for (l in 0..7) {
                 for (m in 0..7) {
-                if (s[l][m] == 1 || s[l][m] == 2)
-                    z = 1;
-                if (s[l][m] == -1 || s[l][m] == -2)
-                    t = 1;
+                    if (board[l][m] == 1 || board[l][m] == 2) {
+                        anyPlayerPiece = true
+                    }
+                    if (board[l][m] == -1 || board[l][m] == -2) {
+                        anyComputerPiece = true
+                    }
                 }
             }
-            if (z != 1) {
-                konsole.write("I WIN.\n");
+            if (!anyPlayerPiece) {
+                konsole.write("I win.");
                 break;
             }
-            if (t != 1) {
-                konsole.write("YOU WIN.\n");
+            if (!anyComputerPiece) {
+                konsole.write("You win.");
                 break;
             }
-            do {
-                konsole.write("FROM");
-                val str = konsole.read().trim()
-                h = getY(str)
-                e = getX(str)
-                x = e
-                y = h
-                konsole.write("x: $x, y: $y")
-            } while (x < 0 || y < 0 || s[x][y] <= 0)
-            do {
-                konsole.write("TO");
-                val str = konsole.read().trim()
-                b = getY(str)
-                a = getX(str)
-                x = a
-                y = b;
-                if (s[x][y] == 0 && abs(a - e) <= 2 &&  abs(a - e) == abs(b - h))
-                    break;
-                konsole.write("WHAT?\n");
-            } while (true)
-            i = 46;
-            do {
-                s[a][b] = s[e][h]
-                s[e][h] = 0;
-                if (abs(e - a) != 2)
-                    break;
-                s[(e + a) / 2][(h + b) / 2] = 0;
-                var a1 = 0
-                var b1 = 0
-                while (true) {
-                    konsole.write("+TO");
-                    val str = konsole.read()
-                    b1 = getY(str)
-                    a1 = getX(str)
-                    if (a1 < 0)
-                        break;
-                    if (s[a1][b1] == 0 &&  abs(a1 - a) == 2 &&  abs(b1 - b) == 2)
-                        break;
+            while (true) {
+                val problem = playerMove()
+                if (problem.isEmpty()) {
+                    break
                 }
-                if (a1 < 0)
-                    break;
-                e = a;
-                h = b;
-                a = a1;
-                b = b1;
-                i += 15;
-            } while (true);
-            if (b == 7)	// Player reaches top
-                s[a][b] = 2;	// Convert to king
+                konsole.write(problem)
+            }
         }
+    }
+
+    /** Returns a description of the computer move. Empty if impossible */
+    fun computerMove(): String {
+        var move = impossibleMove
+
+        // Search the board for the best movement
+        for (x in 0..7) {
+            for (y in 0..7) {
+                if (board[x][y] == -1) {	// Piece
+                    for (a2 in -1.. 1 step 2) {
+                        move = tryComputer(x, y, a2, -1, move);
+                    }
+                } else if (board[x][y] == -2) {	// King
+                    for (a in -1..1 step 2) {
+                        for (b in -1..1 step 2) {
+                            move = tryComputer(x, y, a, b, move);
+                        }
+                    }
+                }
+            }
+        }
+        if (move == impossibleMove) {
+            return ""
+        }
+        val result = StringBuilder("My move: ${pos(move.x, move.y)}")
+        do {
+            result.append(' ').append(pos(move.u, move.v))
+
+            if (move.v == 0) {	// Computer reaches the bottom
+                board[move.u][move.v] = -2;	// King
+                board[move.x][move.y] = 0;
+                break;
+            }
+            board[move.u][move.v] = board[move.x][move.y];	// Move
+            board[move.x][move.y] = 0;
+
+            if (abs(move.x - move.u) != 2) {
+                break;
+            }
+            board[(move.u + move.x) / 2][(move.v + move.y) / 2] = 0;	// Capture
+            val x = move.u;
+            val y = move.v;
+            move = impossibleMove
+            if (board[x][y] == -1) {
+                for (a in -2..2 step 4) {
+                    move = moreCaptures(x, y, a, -2, move);
+                }
+            } else if (board[x][y] == -2) {
+                for (a in -2..2 step 4) {
+                    for (b in -2..2 step 4) {
+                        moreCaptures(x, y, a, b, move);
+                    }
+                }
+            }
+        } while (move != impossibleMove)
+        return result.toString()
+    }
+
+    fun pos(x: Int, y: Int): String {
+        return "${('a'.code + x).toChar()}${y + 1}"
     }
 
     // x,y = origin square
     // a,b = movement direction
-    fun try_computer() {
-        u = x + a
-        v = y + b
-        if (u < 0 || u > 7 || v < 0 || v > 7) return
-        if (s[u][v] == 0) {
-            eval_move()
-            return
+    fun tryComputer(x: Int, y: Int, a: Int, b: Int, bestMove: Move): Move {
+        var u = x + a
+        var v = y + b
+        if (u < 0 || u > 7 || v < 0 || v > 7) {
+            return bestMove
         }
-        if (s[u][v] < 0) // Cannot jump over own pieces
-            return
+        if (board[u][v] == 0) {
+            return evalMove(x, y, u, v, bestMove)
+        }
+        if (board[u][v] < 0) {
+            // Cannot jump over own pieces
+            return bestMove
+        }
         u += a
-        u += b
-        if (u < 0 || u > 7 || v < 0 || v > 7) return
-        if (s[u][v] == 0) eval_move()
+        v += b
+        if (u < 0 || u > 7 || v < 0 || v > 7) {
+            return bestMove
+        }
+        if (board[u][v] == 0) {
+            return evalMove(x, y, u, v, bestMove)
+        }
+        return bestMove
     }
 
-
-    fun eval_move() {
-        if (v == 0 && s[x][y] == -1) q += 2
-        if (abs(y - v) == 2) q += 5
-        if (y == 7) q -= 2
-        if (u == 0 || u == 7) q++
+    fun evalMove(x: Int, y: Int, u: Int, v: Int, bestMove: Move): Move {
+        var score = 0
+        if (v == 0 && board[x][y] == -1) {
+            score += 2
+        }
+        if (abs(y - v) == 2) {
+            score += 5
+        }
+        if (y == 7) {
+            score -= 2
+        }
+        if (u == 0 || u == 7) {
+            score++
+        }
         var c = -1
         while (c <= 1) {
             if (u + c < 0 || u + c > 7 || v + g < 0) {
                 c += 2
                 continue
             }
-            if (s[u + c].get(v + g) < 0) {    // Computer piece
-                q++
+            if (board[u + c].get(v + g) < 0) {    // Computer piece
+                score++
                 c += 2
                 continue
             }
@@ -246,19 +191,13 @@ class Checkers(
                 c += 2
                 continue
             }
-            if (s[u + c].get(v + g) > 0 && (s[u - c].get(v - g) == 0 || u - c == x && v - g == y)) {
-                q -= 2
+            if (board[u + c][v + g] > 0
+                && (board[u - c][v - g] == 0 || u - c == x && v - g == y)) {
+                score -= 2
             }
             c += 2
         }
-        if (q > r[0]) {    // Best movement so far?
-            r[0] = q // Take note of score
-            r[1] = x // Origin square
-            r[2] = y
-            r[3] = u // Target square
-            r[4] = v
-        }
-        q = 0
+        return if (score > bestMove.score) Move(score, x, y, u, v) else bestMove
     }
 
     fun getX(pos: String): Int {
@@ -278,27 +217,124 @@ class Checkers(
     }
 
 
-    fun more_captures() {
-        u = x + a
-        v = y + b
+    fun moreCaptures(x: Int, y: Int, a: Int, b: Int, bestMove: Move): Move {
+        val u = x + a
+        val v = y + b
         if (u < 0 || u > 7 || v < 0 || v > 7) {
-            return
+            return bestMove
         }
-        if (s[u][v] == 0 && s[x + a / 2][y + b / 2] > 0) {
-            eval_move()
+        if (board[u][v] == 0 && board[x + a / 2][y + b / 2] > 0) {
+            return evalMove(x, y, u, v, bestMove)
         }
+        return bestMove
     }
 
-
-    companion object {
-
-        fun tab(space: Int): String {
-            var str = StringBuilder();
-            for (i in 1..space) {
-                str.append(' ')
+    suspend fun playerMove(): String {
+        konsole.write("Your move?")
+        val str = konsole.read().trim().lowercase()
+        var parts = str.split(" ");
+        if (parts.size < 2) {
+            return "At least two coordinate pairs expected!"
+        }
+        val x0 = getX(parts[0])
+        val y0 = getY(parts[0])
+        if (x0 == -1 || y0 == -1) {
+            return "Invalid start coordinate."
+        }
+        if (board[x0][y0] <= 0) {
+            return "The start position must be one of your pieces."
+        }
+        var piece = board[x0][y0]
+        var x = x0
+        var y = y0
+        var xx = x0
+        var yy = y0
+        for (i in 1 until parts.size) {
+            val part = parts[i].trim()
+            val u = getX(part)
+            val v = getY(part)
+            if (u == xx && v == yy) {
+                return "Can't go back to $part"
             }
-            return str.toString();
+            if (board[u][v] != 0) {
+                return "Target field $part is not empty!"
+            }
+            if (piece != 2 && v < y) {
+                return "Can't move backwards without a king."
+            }
+            val dx = abs(x - u)
+            val dy = abs(y - v)
+            if (dx == 1 && dy == 1) {
+                if (i != 1) {
+                    return "Illegal move $i to $part after a jump."
+                }
+                if (parts.size != 2) {
+                    return "Can't continue after a regular move."
+                }
+            } else if (dx == 2 && dy == 2) {
+                if (board[(x + u) / 2][(y + v) / 2] >= 0) {
+                    return "Can't jump to $part over empty fields or own pieces."
+                }
+            } else {
+                return "Illegal move $i by $dx,$dy fields."
+            }
+            xx = x
+            yy = y
+            x = u
+            y = v
         }
+        // Move seems to be plausible.
+        x = x0
+        y = y0
+        board[x][y] = 0
+        for (i in 0 until parts.size) {
+            val part = parts[i].trim()
+            val u = getX(part)
+            val v = getY(part)
+            if (v == 7) {
+                piece = 2
+            }
+            board[(x + u) / 2][(y + v) / 2] = 0
+            if (i == parts.size - 1) {
+                board[u][v] = piece
+            }
+            x = u
+            y = v
+        }
+        return ""
     }
+
+
+
+    fun renderBoard(): String {
+        val str = StringBuilder("\u3000ａ ｂ ｃ ｄ ｅ ｆ ｇ ｈ\n")
+        for (y in 7 downTo 0) {
+            str.append((0xff11 + y).toChar())
+            for (x in 0..7) {
+                str.append(when (board[x][y]) {
+                    0 -> if (((x + y) % 2) == 0) "\uD83D\uDFE9" else "🟧"
+                    1 -> "⚪"
+                    -1 -> "⚫"
+                    -2 -> "\uD83D\uDDA4"
+                    2 -> "\uD83E\uDD0D"
+                    else -> throw IllegalStateException()
+                })
+            }
+            str.append((0xff11 + y).toChar())
+            str.append("\n");
+        }
+        str.append("\u3000ａ ｂ ｃ ｄ ｅ ｆ ｇ ｈ")
+        return str.toString()
+    }
+
+
+    class Move(
+        val score: Int,
+        val x: Int,
+        val y: Int,
+        val u: Int,
+        val v: Int
+    )
+
 
 }

@@ -42,7 +42,7 @@ class HtmlKonsole : Konsole {
         val request = requests[0]
         val value = input.value
 
-        append(div( "class" to "konsole-bubble-input", value))
+        append(value,  "konsole-bubble-input")
 
         requests.removeAt(0)
         input.value = ""
@@ -53,12 +53,29 @@ class HtmlKonsole : Konsole {
         request.consumer(value)
     }
 
-    fun append(element: Element) {
-        contentContainer.insertBefore(element, contentContainer.firstChild)
+    fun append(text: String, cssClass: String) {
+        val adjusted = StringBuilder()
+        var i = 0;
+        while (i < text.length) {
+            var c = text[i++]
+            adjusted.append(c)
+            var cp = c.code
+            if (cp in 0xd800..0xdbff) {
+                var d = text[i++]
+                adjusted.append(d)
+                cp = 0x10000 + (cp - 0xd800) * 0x400 + (d.code - 0xdc00)
+            }
+            if (cp in 0x2500..0x26ff || cp > 0x1f600) {
+                adjusted.append(' ')
+            }
+        }
+        contentContainer.insertBefore(
+            div("class" to cssClass, adjusted.toString()),
+            contentContainer.firstChild)
     }
 
     override fun write(text: String) {
-        append(div( "class" to "konsole-bubble-output", text))
+        append(text, "konsole-bubble-output")
     }
 
     override fun readThen(

@@ -21,6 +21,7 @@
             white-space:pre-wrap;
             padding: 10px 12px;
             width: fit-content;
+            line-height: 1.2em;
         }
         .konsole-bubble-input {
             align-self: flex-end;
