@@ -4,22 +4,20 @@ import org.kobjects.konsole.Konsole
 import kotlin.math.abs
 
 
-class Checkers(
-    val konsole: Konsole
-) {
-    val impossibleMove = Move(-99, 0, 0, 0, 0)
-    val data = listOf(1, 0, 1, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, -1, 0, -1)
 
+suspend fun checkers(konsole: Konsole) {
+    konsole.write("Checkers")
+    konsole.write("Creative Computing Morristown, New Jersey")
+    while (true) {
+        Checkers().run(konsole)
+    }
+}
+
+class Checkers {
     val board = Array(8, { IntArray(8, {0}) })
     val g = -1
 
-    suspend fun run() {
-        while (true) {
-            game();
-        }
-    }
-
-    suspend fun game() {
+    suspend fun run(konsole: Konsole) {
         konsole.write("""
             This is the game of Checkers. The computer is black,
             and you are white. The computer will move first. 
@@ -66,7 +64,8 @@ class Checkers(
                 break;
             }
             while (true) {
-                val problem = playerMove()
+                konsole.write("Your move?")
+                val problem = playerMove(konsole.read().trim().lowercase())
                 if (problem.isEmpty()) {
                     break
                 }
@@ -229,9 +228,7 @@ class Checkers(
         return bestMove
     }
 
-    suspend fun playerMove(): String {
-        konsole.write("Your move?")
-        val str = konsole.read().trim().lowercase()
+    fun playerMove(str: String): String {
         var parts = str.split(" ");
         if (parts.size < 2) {
             return "At least two coordinate pairs expected!"
@@ -336,5 +333,8 @@ class Checkers(
         val v: Int
     )
 
-
+    companion object {
+        val impossibleMove = Move(-99, 0, 0, 0, 0)
+        val data = listOf(1, 0, 1, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, -1, 0, -1)
+    }
 }

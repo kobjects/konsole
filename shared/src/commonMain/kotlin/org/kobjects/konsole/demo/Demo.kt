@@ -2,8 +2,9 @@ package org.kobjects.konsole.demo
 
 import org.kobjects.konsole.demo.banner.banner
 import org.kobjects.konsole.Konsole
-import org.kobjects.konsole.demo.checkers.Checkers
-import rockPaperScissors
+import org.kobjects.konsole.demo.checkers.checkers
+import org.kobjects.konsole.demo.poker.PokerJ
+import org.kobjects.konsole.demo.rockpaperscissors.rockPaperScissors
 
 class Demo(
     val name: String,
@@ -12,7 +13,8 @@ class Demo(
     companion object {
         val ALL = listOf(
             Demo("Banner", ::banner),
-            Demo("Checkers") { Checkers(it).run() },
+            Demo("Checkers",  ::checkers),
+            Demo("Poker") { PokerJ(it).run() },
             Demo("Rock, Paper, Scissors", ::rockPaperScissors)
 
         )

@@ -1,3 +1,5 @@
+package org.kobjects.konsole.demo.rockpaperscissors
+
 import org.kobjects.konsole.Konsole
 import kotlin.random.Random
 
