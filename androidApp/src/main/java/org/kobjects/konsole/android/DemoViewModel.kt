@@ -18,6 +18,7 @@ class DemoViewModel : ViewModel() {
         konsole.value = ComposeKonsole()
         viewModelScope.launch {
             demo(konsole.value)
+            this@DemoViewModel.title.value = ""
         }
     }
 }

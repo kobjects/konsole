@@ -50,6 +50,7 @@ fun main() {
             konsoleContainer.appendChild(konsole.root)
             GlobalScope.launch {
                 demo.run(konsole)
+                window.location.hash = "#"
             }
         }
     }

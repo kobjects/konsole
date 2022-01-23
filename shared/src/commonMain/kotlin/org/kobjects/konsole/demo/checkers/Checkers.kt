@@ -8,8 +8,24 @@ import kotlin.math.abs
 suspend fun checkers(konsole: Konsole) {
     konsole.write("Checkers")
     konsole.write("Creative Computing Morristown, New Jersey")
+    konsole.write("""
+            This is the game of Checkers. The computer is black,
+            and you are white. The computer will move first. 
+            Squares are referred to by a coordinate system.""".trimIndent().replace('\n', ' '));
+    konsole.write("""
+            a1 is the lower left corner
+            a8 is the upper left corner
+            h1 is the lower right corner
+            h8 is the upper right corner""".trimIndent())
+
     while (true) {
         Checkers().run(konsole)
+
+        konsole.write("Another game?")
+        val answer = konsole.read().lowercase()
+        if (answer != "y" && answer != "yes") {
+            break
+        }
     }
 }
 
@@ -18,15 +34,7 @@ class Checkers {
     val g = -1
 
     suspend fun run(konsole: Konsole) {
-        konsole.write("""
-            This is the game of Checkers. The computer is black,
-            and you are white. The computer will move first. 
-            Squares are referred to by a coordinate system.""".trimIndent().replace('\n', ' '));
-        konsole.write("""
-            a1 is the lower left corner
-            a8 is the upper left corner
-            h1 is the lower right corner
-            h8 is the upper right corner""".trimIndent())
+
         var p = 0
         for (x in 0..7) {
             for (y in 0..7) {

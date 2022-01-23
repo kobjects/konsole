@@ -17,6 +17,11 @@ suspend fun banner(konsole: Konsole) {
     while (true) {
         konsole.write("Text?")
         val statement = konsole.read().uppercase()
+
+        if (statement.isBlank()) {
+            break
+        }
+
         val sb = StringBuilder()
 
         var i = 0
@@ -135,8 +140,7 @@ val FONT = mapOf(
         ⬜⬛⬛⬛⬛⬛⬛
         ⬛⬜⬜⬜⬜⬜⬜
         ⬛⬜⬜⬜⬜⬜⬜
-        ⬜⬛⬛⬛⬛⬛⬛
-        ⬜⬜⬜⬜⬜⬜⬜""",
+        ⬜⬛⬛⬛⬛⬛⬛""",
     "V" to """
         ⬜⬜⬜⬜⬛⬛⬛
         ⬜⬜⬛⬛⬜⬜⬜

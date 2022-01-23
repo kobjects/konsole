@@ -85,6 +85,7 @@ class HtmlKonsole : Konsole {
     ) {
         requests.add(Request(label, validation, consumer))
         input.disabled = false
+        input.focus()
        // enter.disabled = false
     }
 
