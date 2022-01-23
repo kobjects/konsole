@@ -1,6 +1,5 @@
 package org.kobjects.konsole.compose
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -49,46 +48,35 @@ fun RenderKonsole(
 
         val textState = remember { mutableStateOf(TextFieldValue()) }
 
-        val topRequest = if (konsole.requests.isEmpty()) null else konsole.requests.first()
 
         fun submit() {
             val text = textState.value.text
-            errorMessage.value = topRequest?.validation?.invoke(textState.value.text) ?: ""
-            if (errorMessage.value == "") {
-                konsole.entries.add(ComposeKonsole.Entry(text, true))
-                topRequest!!.consumer(text)
-                textState.value = TextFieldValue()
-                konsole.requests.removeAt(0)
-            }
+            konsole.entries.add(ComposeKonsole.Entry(text, true))
+            val request = konsole.request.value!!
+
+            textState.value = TextFieldValue()
+            konsole.request.value = null
+
+            request.consumer(text)
         }
 
         Row () {
             TextField(
                 modifier = Modifier.weight(1f),
                 isError = errorMessage.value != "",
-                enabled = topRequest != null,
+                enabled = konsole.request.value != null,
                 value = textState.value,
                 singleLine = true,
-                label = {
-                    if (errorMessage.value != "") {
-                        Text(errorMessage.value)
-                    } else if (!topRequest?.label.isNullOrEmpty()) {
-                        Text(topRequest!!.label)
-                    } },
                 keyboardActions = KeyboardActions (
                     onDone = { submit() },
                     onSend = { submit() }),
                 onValueChange = {
                     textState.value = it
-                    if (errorMessage.value != "") {
-                        errorMessage.value =
-                            topRequest?.validation?.invoke(textState.value.text) ?: ""
-                    }
                 }
             )
             Button(
                 modifier = Modifier.height(56.dp),
-                enabled = topRequest != null,
+                enabled = konsole.request.value != null,
                 onClick = {
                     submit()
                 }) {

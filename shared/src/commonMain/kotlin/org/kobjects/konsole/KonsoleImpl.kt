@@ -1,18 +1,17 @@
 package org.kobjects.konsole
 
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
+
 class KonsoleImpl : Konsole {
     var writeFunction: (String) -> Unit = {}
-    var readFunction: (String, (String) -> String, (String) -> Unit) -> Unit = {
-        label, validation, consumer ->
-    }
+    var readFunction: ((String) -> Unit) -> Unit = {}
 
     override fun write(s: String) {
-        println("write $s")
         writeFunction(s)
     }
-    override fun readThen(
-        label: String,
-        validation: (String) -> String,
-        consumer: (String) -> Unit
-    ) = readFunction(label, validation, consumer)
+
+    override suspend fun read() = suspendCoroutine<String> { cont ->
+        readFunction { cont.resume(it) }
+    }
 }

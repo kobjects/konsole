@@ -3,6 +3,8 @@ package org.kobjects.konsole.js
 import kotlinx.browser.document
 import org.kobjects.konsole.Konsole
 import org.w3c.dom.*
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 fun element(name: String, vararg children: Any): HTMLElement {
     val element = document.createElement(name) as HTMLElement
@@ -28,7 +30,7 @@ class HtmlKonsole : Konsole {
     private val contentContainer = div("class" to "konsole-content-container")
     val root = div("class" to "konsole-root",  contentContainer, inputContainer)
 
-    private val requests = mutableListOf<Request>()
+    private var request: Request? = null
 
     init {
     //    input.oninput = { onSubmit() }
@@ -36,21 +38,14 @@ class HtmlKonsole : Konsole {
     }
 
     fun onSubmit() {
-        if (requests.isEmpty()) {
-            return
-        }
-        val request = requests[0]
+        val processing = request ?: return
         val value = input.value
+        input.value = ""
+        input.disabled = true
+        this.request = null
 
         append(value,  "konsole-bubble-input")
-
-        requests.removeAt(0)
-        input.value = ""
-        if (requests.isEmpty()) {
-             input.disabled = true
-            // enter.disabled = true
-        }
-        request.consumer(value)
+        processing.consumer(value)
     }
 
     fun append(text: String, cssClass: String) {
@@ -78,20 +73,16 @@ class HtmlKonsole : Konsole {
         append(text, "konsole-bubble-output")
     }
 
-    override fun readThen(
-        label: String,
-        validation: (String) -> String,
-        consumer: (String) -> Unit
-    ) {
-        requests.add(Request(label, validation, consumer))
+    override suspend fun read() = suspendCoroutine<String> { continuation ->
+        if (request != null) {
+            throw IllegalStateException("Request pending!")
+        }
         input.disabled = false
         input.focus()
-       // enter.disabled = false
+        request = Request { continuation.resume(it) }
     }
 
     class Request(
-        val label: String,
-        val validation: (String) -> String,
         val consumer: (String) -> Unit
     )
 }
