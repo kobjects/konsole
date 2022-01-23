@@ -131,7 +131,7 @@ class Poker(val konsole: Konsole) {
                 else -> throw IllegalArgumentException()
             })
             if (z < offset + 4) {
-                sb.append("│ ")
+                sb.append("│")
             }
         }
         return sb.toString()
@@ -445,7 +445,7 @@ class Poker(val konsole: Konsole) {
         } else {
             sb.append(valueToString(card));
             sb.append(if (hs.startsWith("Schmal") || hs.startsWith("Straig"))
-                " high" else "'s")
+                " high" else "s")
         }
         return sb.toString()
     }

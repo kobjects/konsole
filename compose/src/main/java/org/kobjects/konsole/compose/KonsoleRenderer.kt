@@ -3,11 +3,13 @@ package org.kobjects.konsole.compose
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -28,7 +30,11 @@ fun RenderKonsole(
     var errorMessage = remember { mutableStateOf("") }
 
     Column(modifier) {
-        LazyColumn(Modifier.weight(1f)) {
+        val listState = rememberLazyListState()
+        LaunchedEffect(konsole.entries.size) {
+            listState.animateScrollToItem(konsole.entries.size)
+        }
+        LazyColumn(Modifier.weight(1f), state = listState) {
             itemsIndexed(konsole.entries) { index, entry ->
                 Box(modifier = Modifier.fillParentMaxWidth(1f).padding(horizontal = 8.dp, vertical = 4.dp)) {
                     Card (
