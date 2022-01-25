@@ -6,8 +6,10 @@ import kotlin.math.pow
 import kotlin.random.Random
 
 class Poker(val konsole: Konsole) {
+    val COMPUTER_OFFSET = 6
+    val PLAYER_OFFSET = 1
+
     val cards = IntArray(17) { 0 }
-    val ba = IntArray(17) { 0 }
     var b = 0
     var computerCash = 0
     var d = 0
@@ -15,7 +17,6 @@ class Poker(val konsole: Konsole) {
     var i = 0
     var k = 0
     var m = 0
-    var n = 0
     var pot = 0
     var playerCash = 0
     var t = 0.0
@@ -36,9 +37,7 @@ class Poker(val konsole: Konsole) {
 
     fun cardSuit(card: Int) = card / 100
 
-    fun imBusted() = println("I'm busted. Congratulations!")
-
-    val printBuffer = StringBuilder()
+    fun printBusted() = println("I'm busted. Congratulations!")
 
     suspend fun queryCardNumbers(): List<Int> {
         println("Now we draw -- which cards do you want to replace?");
@@ -85,9 +84,9 @@ class Poker(val konsole: Konsole) {
     fun dealCard(z: Int) {
         while (true) {
             cards[z] = 100 * (4 * random()).toInt() + (12 * random()).toInt();
-            if (cards[z] / 100 > 3)    // Invalid suit
+            if (cardSuit(cards[z]) > 3)    // Invalid suit
                 continue;
-            if (cards[z] % 100 > 12) // Invalid number
+            if (cardValue(cards[z]) > 12) // Invalid number
                 continue;
             if (z != 1) {
                 k = 1
@@ -100,7 +99,7 @@ class Poker(val konsole: Konsole) {
                 if (k <= z - 1) // Repeated card
                     continue;
                 if (z > 10) {
-                    n = cards[u];
+                    val n = cards[u];
                     cards[u] = cards[z];
                     cards[z] = n;
                 }
@@ -147,7 +146,7 @@ class Poker(val konsole: Konsole) {
     }
 
     // 2070
-    fun suitToString(card: Int) = when(card / 100) {
+    fun suitToString(card: Int) = when(cardSuit(card)) {
         0 -> "Clubs"
         1 -> "Diamonds"
         2 -> "Hearts"
@@ -156,44 +155,38 @@ class Poker(val konsole: Konsole) {
     }
 
     // 2170
-    fun evaluate_hand(n: Int) {
-        u = 0;
+    fun evaluate_hand(n: Int, i0: Int): Evaluation {
+        val values = IntArray(cards.size)
+        i = i0
+        u = 0
         for (z in n..(n + 4)) {
-            ba[z] = cardValue(cards[z]);
+            values[z] = cardValue(cards[z]);
             if (z != n + 4) {
-                if (cards[z] / 100 == cards[z + 1] / 100) {
+                if (cardSuit(cards[z]) == cardSuit(cards[z + 1])) {
                     u++;
                 }
             }
         }
+
+        // Flush?
         if (u == 4) {
             x = 11111;
             d = cards[n];
             hs = "a Flush in ";
             u = 15;
-            return;
+            return Evaluation(x, d, hs, u, i)
         }
-        for (z in n..(n + 3)) {
-            for (k in (z + 1)..(n + 4)) {
-                if (ba[z] > ba[k]) {
-                    x = cards[z];
-                    cards[z] = cards[k];
-                    ba[z] = ba[k];
-                    cards[k] = x;
-                    ba[k] = cards[k] - 100 * (cards[k] / 100);
-                }
-            }
-        }
+
         x = 0;
         for (z in n..(n + 3)) {
-            if (ba[z] == ba[z + 1]) {
+            if (values[z] == values[z + 1]) {
                 x += 11 * 10.0.pow(z - n).toInt()
                 d = cards[z];
                 if (u < 11) {
                     u = 11;
                     hs = "a pair of ";
                 } else if (u == 11) {
-                    if (ba[z] == ba[z - 1]) {
+                    if (values[z] == values[z - 1]) {
                         hs = "three ";
                         u = 13;
                     } else {
@@ -203,7 +196,7 @@ class Poker(val konsole: Konsole) {
                 } else if (u == 12) {
                     u = 16;
                     hs = "Full House, ";
-                } else if (ba[z] == ba[z - 1]) {
+                } else if (values[z] == values[z - 1]) {
                     u = 17;
                     hs = "four ";
                 } else {
@@ -213,40 +206,40 @@ class Poker(val konsole: Konsole) {
             }
         }
         if (x == 0) {
-            if (ba[this.n] + 3 == ba[this.n + 3]) {
+            if (values[n] + 3 == values[n + 3]) {
                 x = 1111;
                 u = 10;
             }
-            if (ba[this.n + 1] + 3 == ba[this.n + 4]) {
+            if (values[n + 1] + 3 == values[n + 4]) {
                 if (u == 10) {
                     u = 14;
                     hs = "Straight";
                     x = 11111;
-                    d = cards[this.n + 4];
-                    return;
+                    d = cards[n + 4];
+                    return Evaluation(x = x, d = d, hs = hs, u = u, i = i)
                 }
                 u = 10;
                 x = 11110;
             }
         }
         if (u < 10) {
-            d = cards[this.n + 4];
+            d = cards[n + 4];
             hs = "Schmaltz, ";
             u = 9;
             x = 11000;
             i = 6;
-            return;
+            return Evaluation(x = x, d = d, hs = hs, u = u, i = i);
         }
         if (u == 10) {
             if (i == 1)
                 i = 6;
-            return;
+            return Evaluation(x = x, d = d, hs = hs, u = u, i = i);
         }
-        if (u > 12)
-            return;
-        if (cardValue(d) > 6)
-            return;
+        if (u > 12 || cardValue(d) > 6)
+            return Evaluation(x = x, d = d, hs = hs, u = u, i = i);
+
         i = 6;
+        return Evaluation(x = x, d = d, hs = hs, u = u, i = i);
     }
 
     fun println(s: String) {
@@ -455,6 +448,19 @@ class Poker(val konsole: Konsole) {
         return konsole.read()
     }
 
+    fun sortCards(n: Int) {
+        for (z in n..(n + 3)) {
+            for (k in (z + 1)..(n + 4)) {
+                if (cardValue(cards[z]) > cardValue(cards[k])) {
+                    val x = cards[z];
+                    cards[z] = cards[k];
+                    cards[k] = x;
+                }
+            }
+        }
+    }
+
+
     // Main program
     suspend fun run() {
         println("POKER\nCreative Computing Morristown, New Jersey");
@@ -473,7 +479,7 @@ class Poker(val konsole: Konsole) {
         while (true) {
             pot = 0;
             if (computerCash <= 5) {
-                imBusted();
+                printBusted();
                 return;
             }
             println("The ante is $5, I will deal.");
@@ -487,10 +493,11 @@ class Poker(val konsole: Konsole) {
             for (z in 1..10) {
                 dealCard(z)
             }
+            sortCards(PLAYER_OFFSET)
+            sortCards(COMPUTER_OFFSET)
             println("Your hand:\n${describeCards(1)}");
-            n = 6;
             i = 2;
-            evaluate_hand(6);
+            val computerEval = evaluate_hand(COMPUTER_OFFSET, 2);
             first = true;
             if (i == 6) {
                 if (random10() > 7) {
@@ -559,6 +566,7 @@ class Poker(val konsole: Konsole) {
                u = cn;
                dealCard(++z);
             }
+            sortCards(PLAYER_OFFSET)
             println("Your new hand:\n${describeCards(1)}");
             for (uu in 6..10) {
                 u = uu
@@ -566,15 +574,16 @@ class Poker(val konsole: Konsole) {
                     break;
                 dealCard(++z);
             }
+            sortCards(COMPUTER_OFFSET)
             val sb = StringBuilder("I am taking ${z - 10 - cardNumbers.size} card");
             if (z != 11 + cardNumbers.size) {
                 sb.append("s");
             }
             println(sb.toString())
-            n = 6;
+
             v = i;
             i = 1;
-            evaluate_hand(6);
+            evaluate_hand(COMPUTER_OFFSET, 1);
             b = u;
             m = d;
             if (v == 7) {
@@ -635,11 +644,11 @@ class Poker(val konsole: Konsole) {
                 }
             }
             println("Now we compare hands.");
-            js = hs;
+            val js = hs;
 
-            println("My Hand:\n${describeCards(6)}");
-            n = 1;
-            evaluate_hand(1);
+            println("My Hand:\n${describeCards(COMPUTER_OFFSET)}");
+
+            evaluate_hand(PLAYER_OFFSET, i);
             println("You have ${describeHand(hs, d)}");
             hs = js;
 
@@ -678,4 +687,12 @@ class Poker(val konsole: Konsole) {
             }
         }
     }
+
+    class Evaluation(
+        val x: Int,
+        val d: Int,
+        val hs: String,
+        val u: Int,
+        val i: Int
+    )
 }
