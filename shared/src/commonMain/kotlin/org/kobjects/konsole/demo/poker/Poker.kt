@@ -2,7 +2,6 @@ package org.kobjects.konsole.demo.poker
 
 import org.kobjects.konsole.Konsole
 import kotlin.math.floor
-import kotlin.math.pow
 import kotlin.random.Random
 
 fun random() = Random.Default.nextDouble()
@@ -10,10 +9,10 @@ fun random() = Random.Default.nextDouble()
 fun random10() = (10 * random()).toInt()
 
 class Poker(val konsole: Konsole) {
-    val COMPUTER_OFFSET = 6
-    val PLAYER_OFFSET = 1
+    val COMPUTER_OFFSET = 5
+    val PLAYER_OFFSET = 0
 
-    val cards = Array<Card>(17) { Card(0, 0) }
+    val allCards = mutableListOf<Card>()
     var computerCash = 0
     var playerBet = 0
     var i = 0
@@ -22,12 +21,13 @@ class Poker(val konsole: Konsole) {
     var playerCash = 0
     var t = 0.0
     var v = 0
-    var x = 0
     var z = 0
 
     var watchSold = false
     var tieTackSold = false
 
+    var playerHand = Hand()
+    var computerHand = Hand()
 
     fun printBusted() = println("I'm busted. Congratulations!")
 
@@ -73,153 +73,22 @@ class Poker(val konsole: Konsole) {
 
 
     // 1740
-    fun dealCard(z: Int, u: Int) {
-        while (true) {
-            cards[z] = Card(Random.Default.nextInt(12), Random.Default.nextInt(4))
-            if (cards[z].suit > 3)    // Invalid suit
-                continue;
-            if (cards[z].value > 12) // Invalid number
-                continue;
-            if (z != 1) {
-                var k = 1
-                while (k <= z) {
-                    if (cards[z] == cards[k]) {
-                        break;
-                    }
-                    k++
-                }
-                if (k <= z - 1) // Repeated card
-                    continue;
-                if (z > 10) {
-                    val n = cards[u];
-                    cards[u] = cards[z];
-                    cards[z] = n;
-                }
-            }
-            return;
-        }
+    fun dealCard(): Card {
+        var card: Card
+        do {
+            card = Card(Random.Default.nextInt(12), Random.Default.nextInt(4))
+        } while (allCards.contains(card))
+        allCards.add(card)
+        return card
     }
 
     // 1850
-    fun describeCards(offset: Int): String {
-        val sb = StringBuilder()
-        for (z in offset .. (offset + 4)) {
-            sb.append("${"¹²³⁴⁵"[(z-1)%5]} ");
-            val card = cards[z]
-            val value = card.value
-            sb.append(when (value) {
-                9 -> "J"
-                10 -> "Q"
-                11 -> "K"
-                12 -> "A"
-                else -> (value + 2).toString()
-            })
-            sb.append(when (card.suit) {
-                0 -> "♣️"
-                1 -> "♦️"
-                2 -> "♥️"
-                3 -> "♠️"
-                else -> throw IllegalArgumentException()
-            })
-            if (z < offset + 4) {
-                sb.append("│")
-            }
-        }
-        return sb.toString()
-    }
 
 
     // 2170
-    fun evaluateHand(n: Int, i0: Int): Evaluation {
-        val values = IntArray(cards.size)
-        var hs = ""
-        i = i0
-        var u = 0
-        for (z in n..(n + 4)) {
-            values[z] = cards[z].value;
-            if (z != n + 4) {
-                if (cards[z].suit == cards[z + 1].suit) {
-                    u++;
-                }
-            }
-        }
-
-        // Flush?
-        if (u == 4) {
-            x = 11111;
-            hs = "a Flush in ";
-            u = 15;
-            return Evaluation(x, cards[n], hs, u, i)
-        }
-
-        var d = Card(0,0)
-        x = 0;
-        for (z in n..(n + 3)) {
-            if (values[z] == values[z + 1]) {
-                x += 11 * 10.0.pow(z - n).toInt()
-                d = cards[z];
-                if (u < 11) {
-                    u = 11;
-                    hs = "a pair of ";
-                } else if (u == 11) {
-                    if (values[z] == values[z - 1]) {
-                        hs = "three ";
-                        u = 13;
-                    } else {
-                        hs = "two pair, ";
-                        u = 12;
-                    }
-                } else if (u == 12) {
-                    u = 16;
-                    hs = "Full House, ";
-                } else if (values[z] == values[z - 1]) {
-                    u = 17;
-                    hs = "four ";
-                } else {
-                    u = 16;
-                    hs = "Full House. ";
-                }
-            }
-        }
-        if (x == 0) {
-            if (values[n] + 3 == values[n + 3]) {
-                x = 1111;
-                u = 10;
-            }
-            if (values[n + 1] + 3 == values[n + 4]) {
-                if (u == 10) {
-                    u = 14;
-                    hs = "Straight";
-                    x = 11111;
-                    d = cards[n + 4];
-                    return Evaluation(x = x, d = d, hs = hs, u = u, i = i)
-                }
-                u = 10;
-                x = 11110;
-            }
-        }
-        if (u < 10) {
-            d = cards[n + 4];
-            hs = "Schmaltz, ";
-            u = 9;
-            x = 11000;
-            i = 6;
-            return Evaluation(x = x, d = d, hs = hs, u = u, i = i);
-        }
-        if (u == 10) {
-            if (i == 1)
-                i = 6;
-            return Evaluation(x = x, d = d, hs = hs, u = u, i = i);
-        }
-        if (u > 12 || d.value > 6)
-            return Evaluation(x = x, d = d, hs = hs, u = u, i = i);
-
-        i = 6;
-        return Evaluation(x = x, d = d, hs = hs, u = u, i = i);
-    }
 
     fun println(s: String) {
-       konsole.write(s)
+        konsole.write(s)
     }
 
 
@@ -323,13 +192,13 @@ class Poker(val konsole: Konsole) {
                 return 0.0
             }
             try {
-                 val d = input.toDouble()
-                 if (d == floor(d) && d > 0) {
-                   return d
-                 }
-                 println("No small change, please.");
+                val d = input.toDouble()
+                if (d == floor(d) && d > 0) {
+                    return d
+                }
+                println("No small change, please.");
             } catch (e: Exception) {
-                 println("Amount not recognized.")
+                println("Amount not recognized.")
             }
         }
     }
@@ -406,30 +275,18 @@ class Poker(val konsole: Konsole) {
 
 
     suspend fun input(): String {
-        println()
         return konsole.read()
     }
-
-    fun sortCards(n: Int) {
-        for (z in n..(n + 3)) {
-            for (k in (z + 1)..(n + 4)) {
-                if (cards[z].value > cards[k].value) {
-                    val x = cards[z];
-                    cards[z] = cards[k];
-                    cards[k] = x;
-                }
-            }
-        }
-    }
-
 
     // Main program
     suspend fun run() {
         println("POKER\nCreative Computing Morristown, New Jersey");
-        println("""
+        println(
+            """
             Welcome to the casino. We each have $200.
             I will open the betting before the draw; you open after.
-            To fold bet 0; to check bet .5.""".trimIndent().replace('\n', ' '))
+            To fold bet 0; to check bet .5.""".trimIndent().replace('\n', ' ')
+        )
         println("Enough talk -- let's get down to business.");
 
         computerCash = 200;
@@ -452,39 +309,17 @@ class Poker(val konsole: Konsole) {
             pot += 10;
             playerCash -= 5;
             computerCash -= 5;
-            for (z in 1..10) {
-                dealCard(z, z)
-            }
-            sortCards(PLAYER_OFFSET)
-            sortCards(COMPUTER_OFFSET)
-            println("Your hand:\n${describeCards(1)}");
-            i = 2
+            allCards.clear()
+            computerHand = Hand()
+            playerHand = Hand()
 
-            var computerEvaluation = evaluateHand(COMPUTER_OFFSET, 2);
-            first = true;
-            if (i == 6) {
-                if (random10() > 7) {
-                    x = 11100;
-                    i = 7;
-                    z = 23;
-                } else if (random10() > 7) {
-                    x = 11110;
-                    i = 7;
-                    z = 23;
-                } else if (random10() < 2) {
-                    x = 11111;
-                    i = 7;
-                    z = 23;
-                } else {
-                    z = 1;
-                    computerBet = 0;
-                    println("I check.");
-                    first = false;
-                }
-            } else {
-                if (computerEvaluation.u < 13) {
+            playerHand.sort()
+            println("Your hand:\n$playerHand");
+
+            var computerEvaluation = computerHand.sortAndEvaluate();
+
+                if (computerEvaluation.score < 13) {
                     if (random10() < 2) {
-                        i = 7;
                         z = 23;
                     } else {
                         z = 0;
@@ -492,14 +327,14 @@ class Poker(val konsole: Konsole) {
                         println("I check.");
                         first = false;
                     }
-                } else if (computerEvaluation.u > 16) {
+                } else if (computerEvaluation.score > 16) {
                     z = 2;
                     if (random10() < 1)
                         z = 35;
                 } else {
                     z = 35;
                 }
-            }
+
             if (first) {
                 v = z + random10();
                 playerBet = 0;
@@ -521,37 +356,40 @@ class Poker(val konsole: Konsole) {
             }
 
             val cardNumbers = queryCardNumbers()
-            var cardCount = 10
             for (cn in cardNumbers) {
-               dealCard(++cardCount, cn);
+                playerHand.replaceCard(cn - 1);
             }
-            sortCards(PLAYER_OFFSET)
-            println("Your new hand:\n${describeCards(1)}");
-            for (u in 6..10) {
-                if (floor(x / 10.0.pow(u - 6)) != 10 * floor(x / 10.0.pow(u - 5)))
-                    break;
-                dealCard(++cardCount, u);
+            playerHand.sort()
+            println("Your new hand:\n$playerHand");
+            var count = 0
+            for (u in 0..4) {
+                if (!computerEvaluation.hold[u]) {
+                    computerHand.replaceCard(u);
+                    if (++count == 3) {
+                        break;
+                    }
+                }
             }
-            sortCards(COMPUTER_OFFSET)
-            val sb = StringBuilder("I am taking ${cardCount - 10 - cardNumbers.size} card");
-            if (cardCount != 11 + cardNumbers.size) {
+
+            val sb = StringBuilder("I am taking $count card");
+            if (count != 1) {
                 sb.append("s");
             }
             println(sb.toString())
 
             v = i;
             i = 1;
-            computerEvaluation = evaluateHand(COMPUTER_OFFSET, 1);
+            computerEvaluation = computerHand.sortAndEvaluate();
             if (v == 7) {
                 z = 28;
             } else if (i == 6) {
                 z = 1;
             } else {
-                if (computerEvaluation.u < 13) {
+                if (computerEvaluation.score < 13) {
                     z = 2;
                     if (random10() == 6)
                         z = 19;
-                } else if (computerEvaluation.u < 16) {
+                } else if (computerEvaluation.score < 16) {
                     z = 19;
                     if (random10() == 8)
                         z = 11;
@@ -595,12 +433,12 @@ class Poker(val konsole: Konsole) {
             }
             println("Now we compare hands.");
 
-            println("My Hand:\n${describeCards(COMPUTER_OFFSET)}");
+            println("My Hand:\n$computerHand");
 
-            val playerEvaluation = evaluateHand(PLAYER_OFFSET, i);
-            println("You have $playerEvaluation}")
+            val playerEvaluation = playerHand.sortAndEvaluate();
+            println("You have $playerEvaluation.")
 
-            println("And I have $computerEvaluation}");
+            println("And I have $computerEvaluation.");
 
             val result = computerEvaluation.compareTo(playerEvaluation)
 
@@ -619,54 +457,179 @@ class Poker(val konsole: Konsole) {
         }
     }
 
-    class Card(val value: Int, val suit: Int): Comparable<Card> {
-        override fun compareTo(other: Card): Int {
-            return value.compareTo(other.value)
+    class Card(val value: Int, val suit: Int) : Comparable<Card> {
+        override fun compareTo(other: Card): Int = value.compareTo(other.value)
+
+        override fun equals(other: Any?) =
+            other is Card && other.value == value && other.suit == suit
+
+        fun valueToString() = when (value) {
+            9 -> "Jack"
+            10 -> "Queen"
+            11 -> "King"
+            12 -> "Ace"
+            else -> (value + 2).toString()
         }
+
+        fun suitToString() = when (suit) {
+            0 -> "Clubs"
+            1 -> "Diamonds"
+            2 -> "Hearts"
+            3 -> "Spades"
+            else -> throw IllegalArgumentException()
+        }
+
+        override fun toString(): String =
+            when (value) {
+                9 -> "J"
+                10 -> "Q"
+                11 -> "K"
+                12 -> "A"
+                else -> (value + 2).toString()
+            } + when (suit) {
+                0 -> "♣️"
+                1 -> "♦️"
+                2 -> "♥️"
+                3 -> "♠️"
+                else -> throw IllegalArgumentException()
+            }
     }
 
-    class Evaluation(
-        val x: Int,
-        val d: Card,
-        val hs: String,
-        val u: Int,
-        val i: Int
-    ) : Comparable<Evaluation> {
-        override fun compareTo(other: Evaluation): Int {
-            val result = u.compareTo(other.u)
-            return if (result != 0) result
-                else d.value.compareTo(other.d.value)
+
+    inner class Hand() {
+        var cards = MutableList<Card>(5) { dealCard() }
+
+        fun replaceCard(index: Int) {
+            cards[index] = dealCard()
         }
 
+        fun sort() = cards.sort()
+
         override fun toString(): String {
-            val sb = StringBuilder(hs);
-            if (hs.startsWith("a Flush")) {
-                sb.append(suitToString(d));
-            } else {
-                sb.append(valueToString(d));
-                sb.append(if (hs.startsWith("Schmal")
-                    || hs.startsWith("Straig"))
-                    " high" else "s")
+            val sb = StringBuilder()
+            for (z in cards.indices) {
+                if (!sb.isEmpty()) {
+                    sb.append("│")
+                }
+                sb.append("¹²³⁴⁵"[z])
+                sb.append("ᐟ")
+                sb.append(cards[z])
             }
             return sb.toString()
         }
+
+        fun sortAndEvaluate(): Evaluation {
+            sort()
+            var count = 1
+            var maxCount = 1
+            var pivot = listOf(cards[4])
+            var keep = MutableList(5) { false }
+            var straight = true
+            var flush = true
+            for (i in 1..4) {
+                if (cards[i].suit != cards[i - 1].suit) {
+                    flush = false
+                }
+                if (cards[i].value != cards[i - 1].value + 1) {
+                    straight = false
+                }
+                if (cards[i].value == cards[i - 1].value) {
+                    if (++count > maxCount) {
+                        maxCount = count
+                        pivot = listOf(cards[i])
+                        keep[i] = true
+                        keep[i - 1] = true
+                    }
+                } else {
+                    count = 1
+                }
+            }
+
+            var valueName = pivot[0].valueToString()
+            var score: Int
+            var description: String
+
+            when (maxCount) {
+                1 -> {
+                    description = "Schmaltz, ${valueName}"
+                    score = cards[4].value
+                    pivot = cards.subList(0, 3).reversed()
+                }
+                4 -> {
+                    description = "Four ${valueName}s."
+                    score = 17
+                }
+                else -> {
+                    var secondPair = false
+                    for (i in 1..4) {
+                        if (cards[i].value != pivot[0].value && cards[i].value == cards[i - 1].value) {
+                            pivot = listOf(pivot[0], cards[i])
+                            secondPair = true
+                        }
+                        break;
+                    }
+                    if (secondPair) {
+                        if (maxCount == 2) {
+                            score = 12
+                            description = "Two Pair, ${valueName}s and ${pivot[1].valueToString()}"
+                        } else {
+                            score = 16
+                            description = "Full House, ${valueName}s over ${pivot[1].valueToString()}s"
+                        }
+                    } else {
+                        if (maxCount == 2) {
+                            score = 11
+                            description = "A pair of ${valueName}s"
+                        } else {
+                            score = 13
+                            description = "Three ${valueName}s\""
+                        }
+                    }
+                }
+            }
+
+            if (straight && flush) {
+                description = "${cards[4].valueToString()}-high straight flush"
+                score = 18
+                pivot = listOf(cards[4])
+                keep.fill(true)
+            } else if (score < 16) {
+                if (flush) {
+                    description = "${cards[4].valueToString()}-high flush"
+                    score = 15
+                    pivot = cards.reversed()
+                    keep.fill(true)
+                } else if (straight) {
+                    description = "${cards[4].valueToString()}-high straight"
+                    score = 14
+                    keep.fill(true)
+                }
+            }
+
+            return Evaluation(hold = keep, pivot = pivot, description = description, score = score)
+        }
+
+
     }
+
+
+    class Evaluation(
+        val hold: List<Boolean>,
+        val pivot: List<Card>,
+        val description: String,
+        val score: Int
+    ) : Comparable<Evaluation> {
+        override fun compareTo(other: Evaluation): Int {
+            var result = score.compareTo(other.score)
+            var i = 0
+            while (result == 0 && i < pivot.size) {
+                result = pivot[i].compareTo(other.pivot[i])
+            }
+            return result
+        }
+
+        override fun toString(): String = description
+    }
+
 }
 
-// 1950
-fun valueToString(card: Poker.Card) = when(card.value) {
-    9 -> "Jack"
-    10 -> "Queen"
-    11 -> "King"
-    12 -> "Ace"
-    else -> (card.value + 2).toString()
-}
-
-// 2070
-fun suitToString(card: Poker.Card) = when(card.suit) {
-    0 -> "Clubs"
-    1 -> "Diamonds"
-    2 -> "Hearts"
-    3 -> "Spades"
-    else -> throw IllegalArgumentException()
-}
