@@ -2,6 +2,7 @@ package org.kobjects.konsole.demo.poker
 
 import org.kobjects.konsole.Konsole
 import kotlin.math.floor
+import kotlin.math.min
 import kotlin.random.Random
 
 fun random() = Random.Default.nextDouble()
@@ -14,22 +15,11 @@ class Poker(val konsole: Konsole) {
 
     val allCards = mutableListOf<Card>()
     var computerCash = 0
-    var playerBet = 0
-    var i = 0
-    var computerBet = 0
-    var pot = 0
     var playerCash = 0
-    var t = 0.0
-    var v = 0
-    var z = 0
+    var pot = 0
 
     var watchSold = false
     var tieTackSold = false
-
-    var playerHand = Hand()
-    var computerHand = Hand()
-
-    fun printBusted() = println("I'm busted. Congratulations!")
 
     suspend fun queryCardNumbers(): List<Int> {
         println("Now we draw -- which cards do you want to replace?");
@@ -52,7 +42,6 @@ class Poker(val konsole: Konsole) {
                 }
             }
             if (valid) {
-                println("Drawing $cards.")
                 return cards.toList()
             }
             println("Please enter a list of card numbers, e.g. '1 2'. If you wish to replace no cards, don't fill anything")
@@ -82,22 +71,16 @@ class Poker(val konsole: Konsole) {
         return card
     }
 
-    // 1850
-
-
-    // 2170
 
     fun println(s: String) {
         konsole.write(s)
     }
 
 
-    suspend fun playerLowInMoney(): Boolean {
+    suspend fun playerLowInMoney() {
         println("You can't bet with what you haven't got.");
-        var answer = false
         if (!watchSold) {
-            answer = yesNo("Would you like to sell your watch?")
-            if (answer) {
+            if (yesNo("Would you like to sell your watch?")) {
                 if (random10() < 7) {
                     println("I'll give you $75 for it.\n");
                     playerCash += 75;
@@ -106,11 +89,11 @@ class Poker(val konsole: Konsole) {
                     playerCash += 25;
                 }
                 watchSold = true
+                return
             }
         }
-        if (!tieTackSold && !answer) {
-            answer = yesNo("Will you part with that diamond tie tack")
-            if (answer) {
+        if (!tieTackSold) {
+            if (yesNo("Will you part with that diamond tie tack")) {
                 if (random10() < 6) {
                     println("You are now $100 richer.\n");
                     playerCash += 100;
@@ -118,16 +101,12 @@ class Poker(val konsole: Konsole) {
                     println("It's paste. $25.\n");
                     playerCash += 25;
                 }
-                tieTackSold = false
+                tieTackSold = true
             }
         }
-        if (!answer) {
-            println("Your wad is shot. So long, sucker!");
-            return true;
-        }
-        return false;
     }
 
+    /*
     suspend fun computerLowInMoney(): Boolean {
         if (computerCash - playerBet - v >= 0)
             return false;
@@ -165,113 +144,84 @@ class Poker(val konsole: Konsole) {
         return false;
     }
 
-    suspend fun askForBet(): Int {
-        while (true) {
-            val status = askForBetInner()
-            if (status != 0) {
-                return status;
-            }
-        }
-    }
+     */
 
-    suspend fun askForAmount(): Double {
-        val checkAllowed = computerBet == 0 && playerBet == 0
+
+    suspend fun askForAmount(minimum: Int): Int {
         while (true) {
-            val sb = StringBuilder("What is your bet? Type 'fold' to fold");
-            if (checkAllowed) {
-                sb.append(" and 'check' to check.")
+            if (minimum == 0) {
+                println("What is your bet (type 'fold' to fold and 0 to check)?");
             } else {
-                sb.append(".")
+                println("What is your bet (type 'fold' to fold)?");
             }
-            println(sb.toString());
             val input = input().trim().lowercase()
-            if (checkAllowed && (input == "c" || input == "check")) {
-                return 0.5
-            }
             if (input == "f" || input == "fold") {
-                return 0.0
+                return -1
             }
             try {
                 val d = input.toDouble()
-                if (d == floor(d) && d > 0) {
-                    return d
+                if (d != floor(d) || d < 0) {
+                    println("No small change, please.");
+                } else if (d < minimum) {
+                    println("If you can't see my bet, then fold.")
+                } else {
+                    return d.toInt()
                 }
-                println("No small change, please.");
             } catch (e: Exception) {
                 println("Amount not recognized.")
             }
         }
     }
 
-    suspend fun askForBetInner(): Int {
-        t = askForAmount()
-        if (t == 0.5) {
-            return 1;
-        }
-        if (playerCash - playerBet - t < 0) {
-            if (playerLowInMoney())
-                return 2;
-            return 0;
-        }
-        if (t == 0.0) {
-            i = 3;
-        } else if (playerBet + t < computerBet) {
-            println("If you can't see my bet, then fold.");
-            return 0;
-        } else {
-            playerBet += t.toInt();
-            if (playerBet != computerBet) {
-                var forced = false;
-                if (z != 1) {
-                    if (playerBet <= 3 * z)
-                        forced = true;
+    suspend fun bettingRound(initialComputerBet: Int, z: Int): Boolean {
+        var computerBet = initialComputerBet
+        var playerBet = 0
+
+        while (true) {
+
+            while (true) {
+                val amount = askForAmount(computerBet - playerBet)
+                if (amount == -1) {
+                    playerCash -= playerBet
+                    computerCash += playerBet + pot
+                    pot = 0
+                    println("I win.")
+                    return true
+                }
+                if (playerCash - playerBet - amount < 0) {
+                    playerLowInMoney()
                 } else {
-                    if (playerBet <= 5) {
-                        if (z < 2) {
-                            v = 5;
-                            if (playerBet <= 3 * z)
-                                forced = true;
-                        }
-                    } else {
-                        if (z == 1 || t > 25) {
-                            i = 4;
-                            println("I fold.");
-                            return 1;
-                        }
-                    }
+                    playerBet += amount
+                    break
                 }
-                if (forced || z == 2) {
-                    v = playerBet - computerBet + random10();
-                    if (computerLowInMoney())
-                        return 2;
-                    println("I'll see you, and raise you $v");
-                    computerBet = playerBet + v;
-                    return 0;
-                }
-                println("I'll see you.");
-                computerBet = playerBet;
+            }
+
+            if (playerBet == computerBet && computerBet != 0) {
+                break;
+            }
+
+            if (playerBet <= 3 * z) {
+                val v = playerBet - computerBet + 5 + 5 * (random10() / 4)
+                println("I'll see you, and raise you $v")
+                computerBet = playerBet + v
+            } else if (z > 25) {
+                println("I'll see you.")
+                computerBet = playerBet
+                break
+            } else {
+                computerCash -= computerBet
+                playerCash += computerBet + pot
+                pot = 0
+                println("I fold")
+                return true
             }
         }
         playerCash -= playerBet;
         computerCash -= computerBet;
         pot += playerBet + computerBet;
-        return 1;
+        return false
     }
 
-    suspend fun checkForWin(type: Int): Int {
-        if (type == 1) {
-            println("I win.");
-            computerCash += pot;
-            return if (yesNo("Do you wish to continue?")) 1 else 2
-        } else if (type == 2) {
-            println("You win.");
-            playerCash += pot;
-        } else {
-            return 0;
-        }
-        println("Now I have $$computerCash and you have $$playerCash.");
-        return 1;
-    }
 
 
     suspend fun input(): String {
@@ -289,173 +239,129 @@ class Poker(val konsole: Konsole) {
         )
         println("Enough talk -- let's get down to business.");
 
-        computerCash = 200;
-        playerCash = 200;
-        z = 0;
-        var first = true
-        var status = 0
+        computerCash = 200
+        playerCash = 200
 
-        while (true) {
-            pot = 0;
+        while(true) {
+            playRound()
+
+            println("Now I have $$computerCash and you have $$playerCash.")
+
             if (computerCash <= 5) {
-                printBusted();
-                return;
+                println("I'm busted. Congratulations!");
+                break
             }
-            println("The ante is $5, I will deal.");
+            if (!yesNo("Another round?")) {
+                break;
+            }
             if (playerCash <= 5) {
-                if (playerLowInMoney())
-                    return;
+                playerLowInMoney()
             }
-            pot += 10;
-            playerCash -= 5;
-            computerCash -= 5;
-            allCards.clear()
-            computerHand = Hand()
-            playerHand = Hand()
-
-            playerHand.sort()
-            println("Your hand:\n$playerHand");
-
-            var computerEvaluation = computerHand.sortAndEvaluate();
-
-                if (computerEvaluation.score < 13) {
-                    if (random10() < 2) {
-                        z = 23;
-                    } else {
-                        z = 0;
-                        computerBet = 0;
-                        println("I check.");
-                        first = false;
-                    }
-                } else if (computerEvaluation.score > 16) {
-                    z = 2;
-                    if (random10() < 1)
-                        z = 35;
-                } else {
-                    z = 35;
-                }
-
-            if (first) {
-                v = z + random10();
-                playerBet = 0;
-                if (computerLowInMoney())
-                    return;
-                println("I'll open with $" + v);
-                computerBet = v;
-            }
-            playerBet = 0;
-            status = askForBet();
-            if (status == 2)
-                return;
-            status = checkForWin(i - 2);
-            if (status == 2)
-                return;
-            if (status == 1) {
-                pot = 0;
-                continue;
-            }
-
-            val cardNumbers = queryCardNumbers()
-            for (cn in cardNumbers) {
-                playerHand.replaceCard(cn - 1);
-            }
-            playerHand.sort()
-            println("Your new hand:\n$playerHand");
-            var count = 0
-            for (u in 0..4) {
-                if (!computerEvaluation.hold[u]) {
-                    computerHand.replaceCard(u);
-                    if (++count == 3) {
-                        break;
-                    }
-                }
-            }
-
-            val sb = StringBuilder("I am taking $count card");
-            if (count != 1) {
-                sb.append("s");
-            }
-            println(sb.toString())
-
-            v = i;
-            i = 1;
-            computerEvaluation = computerHand.sortAndEvaluate();
-            if (v == 7) {
-                z = 28;
-            } else if (i == 6) {
-                z = 1;
-            } else {
-                if (computerEvaluation.score < 13) {
-                    z = 2;
-                    if (random10() == 6)
-                        z = 19;
-                } else if (computerEvaluation.score < 16) {
-                    z = 19;
-                    if (random10() == 8)
-                        z = 11;
-                } else {
-                    z = 2;
-                }
-            }
-            computerBet = 0;
-            playerBet = 0;
-            status = askForBet();
-            if (status == 2)
-                return;
-            if (t == 0.5) {
-                if (v != 7 && i == 6) {
-                    println("I'll check");
-                } else {
-                    v = z + random10();
-                    if (computerLowInMoney())
-                        return;
-                    println("I'll bet $$v");
-                    computerBet = v;
-                    status = askForBet();
-                    if (status == 2)
-                        return;
-                    status = checkForWin(i - 2);
-                    if (status == 2)
-                        return;
-                    if (status == 1) {
-                        pot = 0;
-                        continue;
-                    }
-                }
-            } else {
-                status = checkForWin(i - 2);
-                if (status == 2)
-                    return;
-                if (status == 1) {
-                    pot = 0;
-                    continue;
-                }
-            }
-            println("Now we compare hands.");
-
-            println("My Hand:\n$computerHand");
-
-            val playerEvaluation = playerHand.sortAndEvaluate();
-            println("You have $playerEvaluation.")
-
-            println("And I have $computerEvaluation.");
-
-            val result = computerEvaluation.compareTo(playerEvaluation)
-
-            status = if (result == -1) 2 else result;
-            if (status == 0) {
-                println("The hand is Drawn; all $$pot remains in the pot.");
-                continue;
-            }
-            status = checkForWin(status);
-            if (status == 2)
-                return;
-            if (status == 1) {
-                pot = 0;
-                continue;
+            if (playerCash <= 5) {
+                println("Your wad is shot!")
+                break;
             }
         }
     }
+
+    suspend fun playRound() {
+
+        println("The ante is $5, I will deal.");
+
+        pot += 10;
+        playerCash -= 5;
+        computerCash -= 5;
+        allCards.clear()
+
+        val computerHand = Hand()
+        val playerHand = Hand()
+
+        playerHand.sort()
+        println("Your hand:\n$playerHand");
+
+        var computerEvaluation = computerHand.sortAndEvaluate();
+        var z: Int
+        if (computerEvaluation.score < 13) {
+            z = if (random10() < 2) 25 else 0
+        } else if (computerEvaluation.score < 16) {
+            z = if (random10() < 1) 35 else 25
+        } else {
+            z = 35;
+        }
+        var computerBet: Int
+        if (z == 0) {
+            computerBet = 0
+            println("I'll check.")
+        } else {
+            computerBet = min(computerCash, z + 5 * (random10() / 4))
+            println("I'll open with $$computerBet.");
+        }
+
+        if (bettingRound(computerBet, z)) {
+           return
+        }
+
+        val cardNumbers = queryCardNumbers()
+        for (cn in cardNumbers) {
+            playerHand.replaceCard(cn - 1);
+        }
+        playerHand.sort()
+        println("Your new hand:\n$playerHand");
+        var count = 0
+        for (u in 0..4) {
+            if (!computerEvaluation.hold[u]) {
+                computerHand.replaceCard(u);
+                if (++count == 3) {
+                    break;
+                }
+            }
+        }
+
+        if (count == 1) {
+            println("I am taking one card.")
+        } else {
+            println("I am taking $count card")
+        }
+        computerEvaluation = computerHand.sortAndEvaluate();
+        if (computerEvaluation.score < 13) {
+            if (random10() == 6) {
+                z = 20
+            } else {
+                z = 5
+            }
+        } else if (computerEvaluation.score < 16) {
+            if (random10() == 8) {
+                z = 10;
+            } else {
+                z = 20;
+            }
+        }
+        bettingRound(0, z)
+
+        println("Now we compare hands.");
+
+        println("My Hand:\n$computerHand");
+
+        val playerEvaluation = playerHand.sortAndEvaluate();
+        println("You have $playerEvaluation.")
+
+        println("And I have $computerEvaluation.");
+
+        when (computerEvaluation.compareTo(playerEvaluation)) {
+            1 -> {
+                println("I win.")
+                computerCash += pot
+                pot = 0
+            }
+            -1 -> {
+                println("You win.")
+                playerCash += pot
+                pot = 0
+            }
+            else -> println("The hand is Drawn; all $$pot remains in the pot.");
+        }
+    }
+
 
     class Card(val value: Int, val suit: Int) : Comparable<Card> {
         override fun compareTo(other: Card): Int = value.compareTo(other.value)
@@ -552,8 +458,8 @@ class Poker(val konsole: Konsole) {
             when (maxCount) {
                 1 -> {
                     description = "Schmaltz, ${valueName}"
-                    score = cards[4].value
-                    pivot = cards.subList(0, 3).reversed()
+                    score = 1
+                    pivot = cards.reversed()
                 }
                 4 -> {
                     description = "Four ${valueName}s."
@@ -625,6 +531,7 @@ class Poker(val konsole: Konsole) {
             while (result == 0 && i < pivot.size) {
                 result = pivot[i].compareTo(other.pivot[i])
             }
+            println("comparison rsult $result i: $i self: ${this.score} other: ${other.score}")
             return result
         }
 
