@@ -9,9 +9,6 @@ import org.kobjects.konsole.js.div
 import org.kobjects.konsole.js.element
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLUListElement
-import org.w3c.dom.get
-import kotlin.coroutines.*
-
 
 
 fun main() {
@@ -29,7 +26,9 @@ fun main() {
         demoMap.put("#" + demo.name.replace(" ", "%20"), demo)
     }
 
-    menuDiv.appendChild(div("*) Well ${Demo.ALL.size} actually... ¯\\_(ツ)_/¯"))
+    menuDiv.appendChild(
+        div(
+            element("small","*) Well ${Demo.ALL.size} actually... ¯\\_(ツ)_/¯")))
 
     fun updateLocation() {
         val hash = window.location.hash
@@ -42,7 +41,7 @@ fun main() {
             menuDiv.style.display = "none"
             konsoleContainer.style.display = "flex"
             title.innerText = ""
-            title.appendChild(element("a", "href" to "#", element("b","‹\u00a0\u00a0")))
+            title.appendChild(element("big", element("a", "href" to "#", "\u00a0‹\u00a0\u00a0")))
             title.appendChild(document.createTextNode(demo.name))
 
             val konsole = HtmlKonsole()

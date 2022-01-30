@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <style>
-    a:hover, a:visited, a:link, a:active
-{
-    text-decoration: none;
-}
+        a:hover, a:visited, a:link, a:active {
+            text-decoration: none;
+        }
         html {
             background-color: rgb(242,242,242);
             height: 100%;
@@ -28,15 +27,27 @@
             overflow:hidden;
             padding: 0;
         }
+        .title {
+            align-items:center;
+            background-color: rgb(70, 160, 255);
+            border-bottom: 1px solid rgb(212, 212, 212);
+            color: white;
+            display: flex;
+            font-weight: bold;
+            height: 56px;
+            padding:0 10px;
+        }
+       .title a:hover, .title a:visited, .title a:link, .title a:active {
+            color: white;
+        }
     </style>
     <link rel="stylesheet" type ="text/css" href="konsole.css" />
-    <title>Test</title>
+    <title>101* KMP Konsole Apps</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body style="">
-   <div id="title"
-        style="padding:0 10px; display: flex; border-bottom: 1px solid rgb(212, 212, 212); height:48px; align-items:center">
-    101* KMP Konsole Apps
+   <div id="title" class="title">
+       101* KMP Konsole Apps
    </div>
    <div id="menu" style="flex: 1; flex-direction: column; overflow-y: auto; padding: 10px">
        <ul id="menu-list"></ul>

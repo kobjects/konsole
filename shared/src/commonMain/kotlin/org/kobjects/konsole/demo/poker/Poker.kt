@@ -10,8 +10,6 @@ fun random() = Random.Default.nextDouble()
 fun random10() = (10 * random()).toInt()
 
 class Poker(val konsole: Konsole) {
-    val COMPUTER_OFFSET = 5
-    val PLAYER_OFFSET = 0
 
     val allCards = mutableListOf<Card>()
     var computerCash = 0
@@ -22,7 +20,7 @@ class Poker(val konsole: Konsole) {
     var tieTackSold = false
 
     suspend fun queryCardNumbers(): List<Int> {
-        println("Now we draw -- which cards do you want to replace?");
+        konsole.write("Now we draw -- which cards do you want to replace?")
         while (true) {
             val s = konsole.read()
             val cards = mutableListOf<Int>()
@@ -30,13 +28,13 @@ class Poker(val konsole: Konsole) {
             for (c in s) {
                 if (c in '1'..'5') {
                     if (cards.size >= 3) {
-                        println("No more than 3 cards.")
+                        konsole.write("No more than 3 cards.")
                         valid = false
                         break
                     }
                     cards.add(c.code - '0'.code)
                 } else if (c > ' ' && c != ',' && c != '.' && c != ';') {
-                    println("Invalid card number '$c'")
+                    konsole.write("Invalid card number '$c'")
                     valid = false
                     break
                 }
@@ -44,19 +42,19 @@ class Poker(val konsole: Konsole) {
             if (valid) {
                 return cards.toList()
             }
-            println("Please enter a list of card numbers, e.g. '1 2'. If you wish to replace no cards, don't fill anything")
+            konsole.write("Please enter a list of card numbers, e.g. '1 2'. If you wish to replace no cards, don't fill anything")
         }
     }
 
     suspend fun yesNo(question: String): Boolean {
         while (true) {
-            println(question)
+            konsole.write(question)
             val text = konsole.read().lowercase()
             when (text) {
                 "yes", "y" -> return true
                 "no", "n" -> return false
             }
-            println("Answer yes or no, please.")
+            konsole.write("Answer yes or no, please.")
         }
     }
 
@@ -65,27 +63,23 @@ class Poker(val konsole: Konsole) {
     fun dealCard(): Card {
         var card: Card
         do {
-            card = Card(Random.Default.nextInt(12), Random.Default.nextInt(4))
+            card = Card(2 + Random.Default.nextInt(12),
+                Suit.values()[Random.Default.nextInt(4)])
         } while (allCards.contains(card))
         allCards.add(card)
         return card
     }
 
 
-    fun println(s: String) {
-        konsole.write(s)
-    }
-
-
     suspend fun playerLowInMoney() {
-        println("You can't bet with what you haven't got.");
+        konsole.write("You can't bet with what you haven't got.")
         if (!watchSold) {
             if (yesNo("Would you like to sell your watch?")) {
-                if (random10() < 7) {
-                    println("I'll give you $75 for it.\n");
+                if (Random.Default.nextDouble() < 0.7) {
+                    konsole.write("I'll give you $75 for it.\n")
                     playerCash += 75;
                 } else {
-                    println("That's a pretty crummy watch - I'll give you $25.\n");
+                    konsole.write("That's a pretty crummy watch - I'll give you $25.\n")
                     playerCash += 25;
                 }
                 watchSold = true
@@ -94,11 +88,11 @@ class Poker(val konsole: Konsole) {
         }
         if (!tieTackSold) {
             if (yesNo("Will you part with that diamond tie tack")) {
-                if (random10() < 6) {
-                    println("You are now $100 richer.\n");
+                if (Random.Default.nextDouble() < 0.6) {
+                    konsole.write("You are now $100 richer.\n")
                     playerCash += 100;
                 } else {
-                    println("It's paste. $25.\n");
+                    konsole.write("It's paste. $25.\n")
                     playerCash += 25;
                 }
                 tieTackSold = true
@@ -106,86 +100,85 @@ class Poker(val konsole: Konsole) {
         }
     }
 
-    /*
-    suspend fun computerLowInMoney(): Boolean {
-        if (computerCash - playerBet - v >= 0)
-            return false;
-        if (playerBet == 0) {
-            v = computerCash;
-            return false;
-        }
-        if (computerCash - playerBet < 0) {
-            println("I'll see you.\n");
-            computerBet = playerBet;
-            playerCash = playerCash - playerBet;
-            computerCash = computerCash - computerBet;
-            pot = pot + playerBet + computerBet;
-            return false;
-        }
-        var answer = false;
+
+    suspend fun computerLowInMoney() {
         if (watchSold) {
-            answer = yesNo("Would you like to buy back your watch for $50")
-            if (answer) {
+            if ( yesNo("Would you like to buy back your watch for $50")) {
                 computerCash += 50
                 watchSold = false
+                return
             }
         }
-        if (!answer && tieTackSold) {
-            answer = yesNo("Would you like to buy back your tie tack for $50")
-            if (answer) {
+        if (tieTackSold) {
+            if (yesNo("Would you like to buy back your tie tack for $50")) {
                 computerCash += 50;
                 tieTackSold = false
+                return
             }
         }
-        if (!answer) {
-            println("I'm busted. Congratulations!");
-            return true;
-        }
-        return false;
     }
-
-     */
 
 
     suspend fun askForAmount(minimum: Int): Int {
         while (true) {
             if (minimum == 0) {
-                println("What is your bet (type 'fold' to fold and 0 to check)?");
+                konsole.write("What is your bet (type 'fold' to fold and 0 to check)?")
             } else {
-                println("What is your bet (type 'fold' to fold)?");
+                konsole.write("What is your bet (type 'fold' to fold)?")
             }
-            val input = input().trim().lowercase()
+            val input = konsole.read().trim().lowercase()
             if (input == "f" || input == "fold") {
                 return -1
             }
             try {
                 val d = input.toDouble()
                 if (d != floor(d) || d < 0) {
-                    println("No small change, please.");
+                    konsole.write("No small change, please.")
                 } else if (d < minimum) {
-                    println("If you can't see my bet, then fold.")
+                    konsole.write("If you can't see my bet, then fold.")
                 } else {
                     return d.toInt()
                 }
             } catch (e: Exception) {
-                println("Amount not recognized.")
+                konsole.write("Amount not recognized.")
             }
         }
     }
 
-    suspend fun bettingRound(initialComputerBet: Int, z: Int): Boolean {
-        var computerBet = initialComputerBet
+    /**
+     * Returns true if the game is over.
+     */
+    suspend fun bettingRound(beforeDraw: Boolean, computerScore: Int): Boolean {
+        var computerBet = 0
         var playerBet = 0
 
-        while (true) {
+        if (beforeDraw) {
+           val amount = calculateComputerRise(true, computerScore, 0)
+            when (amount) {
+                -1 -> {
+                    playerCash += pot
+                    pot = 0
+                    konsole.write("I fold")
+                    return true
+                }
+                0 -> {
+                    konsole.write("I'll check.")
+                }
+                else -> {
+                    computerBet = amount
+                    konsole.write("I'll open with $$amount.")
+                }
+            }
+        }
 
+        while (true) {
             while (true) {
                 val amount = askForAmount(computerBet - playerBet)
                 if (amount == -1) {
                     playerCash -= playerBet
                     computerCash += playerBet + pot
                     pot = 0
-                    println("I win.")
+                    konsole.write("I win.")
                     return true
                 }
                 if (playerCash - playerBet - amount < 0) {
@@ -196,24 +189,28 @@ class Poker(val konsole: Konsole) {
                 }
             }
 
-            if (playerBet == computerBet && computerBet != 0) {
+            if (playerBet == computerBet && (beforeDraw || computerBet != 0)) {
                 break;
             }
 
-            if (playerBet <= 3 * z) {
-                val v = playerBet - computerBet + 5 + 5 * (random10() / 4)
-                println("I'll see you, and raise you $v")
-                computerBet = playerBet + v
-            } else if (z > 25) {
-                println("I'll see you.")
-                computerBet = playerBet
-                break
-            } else {
-                computerCash -= computerBet
-                playerCash += computerBet + pot
-                pot = 0
-                println("I fold")
-                return true
+            val amount = calculateComputerRise(beforeDraw, computerScore, playerBet)
+            when (amount) {
+                -1 -> {
+                    computerCash -= computerBet
+                    playerCash += computerBet + pot
+                    pot = 0
+                    konsole.write("I fold")
+                    return true
+                }
+                0 -> {
+                    konsole.write("I'll see you.")
+                    computerBet = playerBet
+                    break
+                }
+                else -> {
+                    konsole.write("I'll see you, and raise you $amount")
+                    computerBet = playerBet + amount
+                }
             }
         }
         playerCash -= playerBet;
@@ -222,33 +219,45 @@ class Poker(val konsole: Konsole) {
         return false
     }
 
+    fun calculateComputerRise(beforeDraw: Boolean, computerScore: Int, playerBet: Int): Int {
+        if (beforeDraw && playerBet == 0) {
+            return if (computerScore + (random() * 1.5).toInt() == 0) 0
+                else min(computerCash, 5 + ((random() * computerScore).toInt() / 5) * 5)
+        }
 
-
-    suspend fun input(): String {
-        return konsole.read()
+        if (playerBet > computerCash / 2) {
+            if (playerBet <= computerCash
+                && computerScore + Random.Default.nextDouble() * 3 > 5) {
+                return 0
+            }
+            return -1
+        }
+        return min(computerCash - playerBet, (2 + (random() * computerScore).toInt() / 5) * 5)
     }
+
 
     // Main program
     suspend fun run() {
-        println("POKER\nCreative Computing Morristown, New Jersey");
-        println(
+        konsole.write("POKER\nCreative Computing Morristown, New Jersey")
+        konsole.write(
             """
             Welcome to the casino. We each have $200.
-            I will open the betting before the draw; you open after.
-            To fold bet 0; to check bet .5.""".trimIndent().replace('\n', ' ')
+            I will open the betting before the draw; you open after.""".trimIndent()
         )
-        println("Enough talk -- let's get down to business.");
-
+        konsole.write("Enough talk -- let's get down to business.")
         computerCash = 200
         playerCash = 200
 
-        while(true) {
+        while (true) {
             playRound()
 
-            println("Now I have $$computerCash and you have $$playerCash.")
+            konsole.write("Now I have $$computerCash and you have $$playerCash.")
 
             if (computerCash <= 5) {
-                println("I'm busted. Congratulations!");
+                computerLowInMoney()
+            }
+            if (computerCash <= 5) {
+                konsole.write("I'm busted. Congratulations!")
                 break
             }
             if (!yesNo("Another round?")) {
@@ -258,59 +267,40 @@ class Poker(val konsole: Konsole) {
                 playerLowInMoney()
             }
             if (playerCash <= 5) {
-                println("Your wad is shot!")
+                konsole.write("Your wad is shot!")
                 break;
             }
         }
     }
 
     suspend fun playRound() {
-
-        println("The ante is $5, I will deal.");
-
+        konsole.write("The ante is $5, I will deal.")
         pot += 10;
         playerCash -= 5;
         computerCash -= 5;
         allCards.clear()
 
-        val computerHand = Hand()
-        val playerHand = Hand()
+        val computerHand = Hand(List(5) { dealCard() })
+        val playerHand = Hand(List(5) { dealCard() })
 
         playerHand.sort()
-        println("Your hand:\n$playerHand");
+        konsole.write("Your hand:\n$playerHand")
 
-        var computerEvaluation = computerHand.sortAndEvaluate();
-        var z: Int
-        if (computerEvaluation.score < 13) {
-            z = if (random10() < 2) 25 else 0
-        } else if (computerEvaluation.score < 16) {
-            z = if (random10() < 1) 35 else 25
-        } else {
-            z = 35;
-        }
-        var computerBet: Int
-        if (z == 0) {
-            computerBet = 0
-            println("I'll check.")
-        } else {
-            computerBet = min(computerCash, z + 5 * (random10() / 4))
-            println("I'll open with $$computerBet.");
-        }
-
-        if (bettingRound(computerBet, z)) {
-           return
+        var computerEvaluation = computerHand.sortAndEvaluate()
+        if (bettingRound(beforeDraw = true, computerScore = computerEvaluation.score)) {
+            return
         }
 
         val cardNumbers = queryCardNumbers()
         for (cn in cardNumbers) {
-            playerHand.replaceCard(cn - 1);
+            playerHand.replaceCard(cn - 1, dealCard());
         }
         playerHand.sort()
-        println("Your new hand:\n$playerHand");
+        konsole.write("Your new hand:\n$playerHand")
         var count = 0
         for (u in 0..4) {
             if (!computerEvaluation.hold[u]) {
-                computerHand.replaceCard(u);
+                computerHand.replaceCard(u, dealCard());
                 if (++count == 3) {
                     break;
                 }
@@ -318,95 +308,71 @@ class Poker(val konsole: Konsole) {
         }
 
         if (count == 1) {
-            println("I am taking one card.")
+            konsole.write("I am taking one card.")
         } else {
-            println("I am taking $count card")
+            konsole.write("I am taking $count cards.")
         }
         computerEvaluation = computerHand.sortAndEvaluate();
-        if (computerEvaluation.score < 13) {
-            if (random10() == 6) {
-                z = 20
-            } else {
-                z = 5
-            }
-        } else if (computerEvaluation.score < 16) {
-            if (random10() == 8) {
-                z = 10;
-            } else {
-                z = 20;
-            }
+        if (bettingRound(false, computerEvaluation.score)) {
+            return
         }
-        bettingRound(0, z)
 
-        println("Now we compare hands.");
-
-        println("My Hand:\n$computerHand");
-
+        konsole.write("Now we compare hands.")
+        konsole.write("My Hand:\n$computerHand")
         val playerEvaluation = playerHand.sortAndEvaluate();
-        println("You have $playerEvaluation.")
+        konsole.write("You have $playerEvaluation.")
 
-        println("And I have $computerEvaluation.");
-
+        konsole.write("And I have $computerEvaluation.")
         when (computerEvaluation.compareTo(playerEvaluation)) {
             1 -> {
-                println("I win.")
+                konsole.write("I win.")
                 computerCash += pot
                 pot = 0
             }
             -1 -> {
-                println("You win.")
+                konsole.write("You win.")
                 playerCash += pot
                 pot = 0
             }
-            else -> println("The hand is Drawn; all $$pot remains in the pot.");
+            else -> {
+                konsole.write("The hand is Drawn; all $$pot remains in the pot.")
+            };
         }
     }
 
+    enum class Suit {
+        DIAMONDS, CLUBS, HEARTS, SPADES
+    }
 
-    class Card(val value: Int, val suit: Int) : Comparable<Card> {
+    class Card(val value: Int, val suit: Suit) : Comparable<Card> {
         override fun compareTo(other: Card): Int = value.compareTo(other.value)
 
         override fun equals(other: Any?) =
             other is Card && other.value == value && other.suit == suit
 
         fun valueToString() = when (value) {
-            9 -> "Jack"
-            10 -> "Queen"
-            11 -> "King"
-            12 -> "Ace"
-            else -> (value + 2).toString()
-        }
-
-        fun suitToString() = when (suit) {
-            0 -> "Clubs"
-            1 -> "Diamonds"
-            2 -> "Hearts"
-            3 -> "Spades"
-            else -> throw IllegalArgumentException()
+            11 -> "Jack"
+            12 -> "Queen"
+            13 -> "King"
+            14 -> "Ace"
+            else -> value.toString()
         }
 
         override fun toString(): String =
-            when (value) {
-                9 -> "J"
-                10 -> "Q"
-                11 -> "K"
-                12 -> "A"
-                else -> (value + 2).toString()
-            } + when (suit) {
-                0 -> "♣️"
-                1 -> "♦️"
-                2 -> "♥️"
-                3 -> "♠️"
-                else -> throw IllegalArgumentException()
+            (if (value == 10) "10" else valueToString().substring(0, 1)) + when (suit) {
+                Suit.DIAMONDS -> "♦\ufe0f️"
+                Suit.CLUBS -> "♣\ufe0f️"
+                Suit.HEARTS -> "♥\ufe0f"
+                Suit.SPADES -> "♠\ufe0f"
             }
     }
 
 
-    inner class Hand() {
-        var cards = MutableList<Card>(5) { dealCard() }
+    class Hand(initialCards: List<Card>) {
+        val cards = initialCards.toMutableList()
 
-        fun replaceCard(index: Int) {
-            cards[index] = dealCard()
+        fun replaceCard(index: Int, card: Card) {
+            cards[index] = card
         }
 
         fun sort() = cards.sort()
@@ -417,8 +383,6 @@ class Poker(val konsole: Konsole) {
                 if (!sb.isEmpty()) {
                     sb.append("│")
                 }
-                sb.append("¹²³⁴⁵"[z])
-                sb.append("ᐟ")
                 sb.append(cards[z])
             }
             return sb.toString()
@@ -429,7 +393,7 @@ class Poker(val konsole: Konsole) {
             var count = 1
             var maxCount = 1
             var pivot = listOf(cards[4])
-            var keep = MutableList(5) { false }
+            var hold = MutableList(5) { false }
             var straight = true
             var flush = true
             for (i in 1..4) {
@@ -440,90 +404,101 @@ class Poker(val konsole: Konsole) {
                     straight = false
                 }
                 if (cards[i].value == cards[i - 1].value) {
-                    if (++count > maxCount) {
+                    count++
+                    if (count > maxCount
+                            || (count == maxCount && cards[i].value > pivot[0].value)) {
                         maxCount = count
                         pivot = listOf(cards[i])
-                        keep[i] = true
-                        keep[i - 1] = true
+                        hold[i] = true
+                        hold[i - 1] = true
                     }
                 } else {
                     count = 1
                 }
             }
 
-            var valueName = pivot[0].valueToString()
+            if (straight && flush) {
+                return Evaluation(
+                    score = 8,
+                    pivot = listOf(cards[4]),
+                    hold = List(5) { true },
+                    description = "${cards[4].valueToString()}-high straight flush")
+            }
+
+            val high = pivot[0].valueToString()
             var score: Int
             var description: String
 
             when (maxCount) {
                 1 -> {
-                    description = "Schmaltz, ${valueName}"
-                    score = 1
+                    score = 0
+                    description = "Schmaltz, ${high}"
                     pivot = cards.reversed()
                 }
                 4 -> {
-                    description = "Four ${valueName}s."
-                    score = 17
+                    score = 7
+                    description = "Four ${high}s."
                 }
                 else -> {
                     var secondPair = false
                     for (i in 1..4) {
-                        if (cards[i].value != pivot[0].value && cards[i].value == cards[i - 1].value) {
+                        if (cards[i].value != pivot[0].value
+                               && cards[i].value == cards[i - 1].value
+                        ) {
                             pivot = listOf(pivot[0], cards[i])
+                            hold[i] = true
+                            hold[i - 1] = true
                             secondPair = true
                         }
                         break;
                     }
-                    if (secondPair) {
-                        if (maxCount == 2) {
-                            score = 12
-                            description = "Two Pair, ${valueName}s and ${pivot[1].valueToString()}"
+                    if (maxCount == 3) {
+                        if (secondPair) {
+                            score = 6
+                            description =
+                                "Full House, ${high}s over ${pivot[1].valueToString()}s"
                         } else {
-                            score = 16
-                            description = "Full House, ${valueName}s over ${pivot[1].valueToString()}s"
+                            score = 3
+                            description = "Three ${high}s\""
                         }
                     } else {
-                        if (maxCount == 2) {
-                            score = 11
-                            description = "A pair of ${valueName}s"
+                        if (secondPair) {
+                            score = 2
+                            description =
+                                "Two Pair, ${high}s and ${pivot[1].valueToString()}"
                         } else {
-                            score = 13
-                            description = "Three ${valueName}s\""
+                            score = 1
+                            description = "A pair of ${high}s"
                         }
                     }
                 }
             }
-
-            if (straight && flush) {
-                description = "${cards[4].valueToString()}-high straight flush"
-                score = 18
-                pivot = listOf(cards[4])
-                keep.fill(true)
-            } else if (score < 16) {
+            if (score < 6) {
                 if (flush) {
-                    description = "${cards[4].valueToString()}-high flush"
-                    score = 15
+                    description = "${cards[4].valueToString()}-high flush."
+                    score = 5
                     pivot = cards.reversed()
-                    keep.fill(true)
+                    hold.fill(true)
                 } else if (straight) {
                     description = "${cards[4].valueToString()}-high straight"
-                    score = 14
-                    keep.fill(true)
+                    score = 4
+                    hold.fill(true)
                 }
             }
-
-            return Evaluation(hold = keep, pivot = pivot, description = description, score = score)
+            return Evaluation(
+                score = score,
+                pivot = pivot,
+                hold = hold,
+                description = description)
         }
-
-
     }
 
 
     class Evaluation(
-        val hold: List<Boolean>,
+        val score: Int,
         val pivot: List<Card>,
-        val description: String,
-        val score: Int
+        val hold: List<Boolean>,
+        val description: String
     ) : Comparable<Evaluation> {
         override fun compareTo(other: Evaluation): Int {
             var result = score.compareTo(other.score)
@@ -531,7 +506,6 @@ class Poker(val konsole: Konsole) {
             while (result == 0 && i < pivot.size) {
                 result = pivot[i].compareTo(other.pivot[i])
             }
-            println("comparison rsult $result i: $i self: ${this.score} other: ${other.score}")
             return result
         }
 
