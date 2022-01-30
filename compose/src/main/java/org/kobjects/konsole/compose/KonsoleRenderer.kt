@@ -1,5 +1,6 @@
 package org.kobjects.konsole.compose
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -36,11 +37,13 @@ fun RenderKonsole(
         }
         LazyColumn(Modifier.weight(1f), state = listState) {
             itemsIndexed(konsole.entries) { index, entry ->
-                Box(modifier = Modifier.fillParentMaxWidth(1f).padding(horizontal = 8.dp, vertical = 4.dp)) {
+                Box(modifier = Modifier
+                    .fillParentMaxWidth(1f)
+                    .padding(horizontal = 8.dp, vertical = 4.dp)) {
                     Card (
                         modifier = Modifier.align(if (entry.input) Alignment.CenterEnd else Alignment.CenterStart),
                         shape = if (entry.input) END_SHAPE else START_SHAPE,
-                        backgroundColor = if (entry.input) MaterialTheme.colors.primary else MaterialTheme.colors.secondary) {
+                        backgroundColor = if (entry.input) MaterialTheme.colors.primary else MaterialTheme.colors.surface) {
 
                         Text(
                             modifier = Modifier.padding(8.dp),
