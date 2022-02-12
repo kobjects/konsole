@@ -122,9 +122,9 @@ class Poker(val konsole: Konsole) {
     suspend fun askForAmount(minimum: Int): Int {
         while (true) {
             if (minimum == 0) {
-                konsole.write("Fold, check or rise to?")
+                konsole.write("Fold, check or rise to <amount>?")
             } else {
-                konsole.write("Fold, see or rise to?")
+                konsole.write("Fold, see or rise to <amount>?")
             }
             val input = konsole.read().trim().lowercase()
             if (input == "f" || input == "fold") {
