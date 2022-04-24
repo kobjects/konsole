@@ -1,13 +1,22 @@
 plugins {
     id("com.android.library")
     kotlin("android")
+    id("maven-publish")
 }
 
+
+group = "org.kobjects.konsole"
+version = "0.1.1"
+
+
 dependencies {
-    implementation("androidx.compose.compiler:compiler:1.1.0-rc02")
+    implementation("androidx.compose.compiler:compiler:1.2.0-alpha03")
 }
 
 android {
+
+    namespace = "org.kobjects.konsole.compose"
+
     compileSdk = 32
 
     defaultConfig {
@@ -38,10 +47,34 @@ android {
         jvmTarget = "1.8"
     }
 
+    publishing {
+        multipleVariants {
+            allVariants()
+        }
+    }
+}
+
+
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            groupId = "org.kobjects.konsole"
+            artifactId = "compose"
+            version = "0.1.1"
+
+            afterEvaluate {
+                from(components["release"])
+            }
+        }
+        repositories {
+            mavenLocal()
+        }
+    }
+
 }
 
 dependencies {
-    implementation(project(":shared"))
+    implementation(project(":core"))
     implementation("androidx.activity:activity-compose:1.4.0")
     implementation("androidx.compose.ui:ui:1.0.5")
     // Tooling support (Previews, etc.)

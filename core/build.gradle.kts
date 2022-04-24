@@ -2,16 +2,21 @@ plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
     id("com.android.library")
+    id("maven-publish")
 }
 
-version = "1.0"
+group = "org.kobjects.konsole"
+version = "0.1.1"
 
 kotlin {
-    android()
+    android {
+        publishLibraryVariants("release", "debug")
+    }
     iosX64()
     iosArm64()
     iosSimulatorArm64() // sure all ios dependencies support this target
 
+    jvm("desktop")
 
     js(IR) {
       //  useCommonJs()
@@ -78,11 +83,15 @@ kotlin {
         }
 
          */
+
+
+        val desktopMain by getting
+        val desktopTest by getting
     }
 }
 
 dependencies {
-    implementation("androidx.compose.compiler:compiler:1.2.0-alpha01")
+    implementation("androidx.compose.compiler:compiler:1.2.0-alpha03")
 }
 android {
     compileSdk = 32

@@ -4,8 +4,9 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.compose.compiler:compiler:1.2.0-alpha01")
+    implementation("androidx.compose.compiler:compiler:1.2.0-alpha03")
 }
+
 
 android {
     compileSdk = 32
@@ -36,12 +37,11 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-
 }
 
 dependencies {
     implementation(project(":compose"))
-    implementation(project(":shared"))
+    implementation(project(":core"))
     implementation("androidx.activity:activity-compose:1.4.0")
     implementation("androidx.compose.ui:ui:1.0.5")
     // Tooling support (Previews, etc.)

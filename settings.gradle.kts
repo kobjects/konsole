@@ -8,7 +8,7 @@ pluginManagement {
 
 rootProject.name = "konsole"
 include(":androidApp")
-include(":shared")
+include(":core")
 include(":compose")
 include(":jsApp")
 
