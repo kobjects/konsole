@@ -1,6 +1,5 @@
 package org.kobjects.konsole.compose
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -9,16 +8,12 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.KeyboardReturn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -71,8 +66,8 @@ fun RenderKonsole(
 
             request.consumer(text)
         }
-
-        BottomAppBar {
+        Divider(color = MaterialTheme.colors.background)
+        Row(verticalAlignment = Alignment.CenterVertically) {
             TextField(
                 modifier = Modifier.weight(1f),
                 isError = errorMessage.value != "",
@@ -86,12 +81,13 @@ fun RenderKonsole(
                     textState.value = it
                 }
             )
-            IconButton(
+            Button(
+                modifier = Modifier.padding(4.dp),
                 enabled = konsole.request.value != null,
                 onClick = {
                     submit()
                 }) {
-                    Icon(Icons.Default.Check, "Enter")
+                    Text("Enter")
             }
         }
     }
