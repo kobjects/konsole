@@ -9,6 +9,9 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.KeyboardReturn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -69,7 +72,7 @@ fun RenderKonsole(
             request.consumer(text)
         }
 
-        Row () {
+        BottomAppBar {
             TextField(
                 modifier = Modifier.weight(1f),
                 isError = errorMessage.value != "",
@@ -83,13 +86,12 @@ fun RenderKonsole(
                     textState.value = it
                 }
             )
-            Button(
-                modifier = Modifier.height(56.dp),
+            IconButton(
                 enabled = konsole.request.value != null,
                 onClick = {
                     submit()
                 }) {
-                Text("Enter")
+                    Icon(Icons.Default.Check, "Enter")
             }
         }
     }
