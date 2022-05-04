@@ -1,5 +1,6 @@
 package org.kobjects.konsole.compose
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -14,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -66,10 +68,12 @@ fun RenderKonsole(
 
             request.consumer(text)
         }
-        Divider(color = MaterialTheme.colors.background)
+        Divider()
         Row(verticalAlignment = Alignment.CenterVertically) {
             TextField(
                 modifier = Modifier.weight(1f),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Transparent),
                 isError = errorMessage.value != "",
                 enabled = konsole.request.value != null,
                 value = textState.value,

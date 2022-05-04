@@ -85,13 +85,13 @@ class MainActivity : AppCompatActivity() {
             primaryVariant = Color(0xff0072cb),
             secondary = Color(0xffffa546),
             secondaryVariant = Color(0xffc77612),
-            background = Color(0xffdddddd),
-            surface = Color(0xffdddddd),
+            background = Color(0xffffffff),
+            surface = Color(0xffeeeeee),
             error = Color(0xffff0000),
             onPrimary = Color(0xffffffff),
             onSecondary = Color(0xffffffff),
             onBackground = Color(0xff000000),
-            onSurface = Color(0xffffffff),
+            onSurface = Color(0xff000000),
             onError = Color(0xffffffff),
             isLight = true)
     }
