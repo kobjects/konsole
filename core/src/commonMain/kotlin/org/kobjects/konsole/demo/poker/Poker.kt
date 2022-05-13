@@ -1,5 +1,6 @@
 package org.kobjects.konsole.demo.poker
 
+import org.kobjects.konsole.Ansi
 import org.kobjects.konsole.Konsole
 import kotlin.math.floor
 import kotlin.math.min
@@ -246,13 +247,13 @@ class Poker(val konsole: Konsole) {
 
     // Main program
     suspend fun run() {
-        konsole.write("POKER\nCreative Computing Morristown, New Jersey")
+        konsole.write("${Ansi.BOLD}POKER${Ansi.NORMAL_INTENSITY}\nCreative Computing Morristown, New Jersey")
         konsole.write(
             """
             Welcome to the casino. We each have $200.
             I will open the betting before the draw; you open after.""".trimIndent()
         )
-        konsole.write("Enough talk -- let's get down to business.")
+        konsole.write("Enough talk -- let's get down to ${Ansi.ITALIC}business${Ansi.NORMAL_STYLE}.")
         computerCash = 200
         playerCash = 200
 

@@ -1,6 +1,5 @@
 package org.kobjects.konsole.compose
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -46,8 +45,8 @@ fun RenderKonsole(
                         backgroundColor = if (entry.input) MaterialTheme.colors.primary else MaterialTheme.colors.surface) {
 
                         Text(
+                            AnsiConverter.ansiToAnnotatedString(entry.value),
                             modifier = Modifier.padding(8.dp),
-                            text = entry.value,
                             textAlign = if (entry.input) TextAlign.End else TextAlign.Start
                         )
                     }
