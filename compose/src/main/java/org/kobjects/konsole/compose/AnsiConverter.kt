@@ -26,8 +26,10 @@ object AnsiConverter {
             while (pos < len && ansi[pos] <= 'A') {
                 pos++
             }
-            for (code in ansi.substring(esc + 2, pos).split(";")) {
-                when (Ansi.GraphicRendition.values()[code.toInt()]) {
+            val codes = ansi.substring(esc + 2, pos).split(";").map { it.toInt() }
+            var index = 0
+            while (index < codes.size) {
+                when (Ansi.GraphicRendition.values()[codes[index++]]) {
                     Ansi.GraphicRendition.RESET -> style = Style()
 
                     Ansi.GraphicRendition.BOLD -> style.bold = true
@@ -47,7 +49,10 @@ object AnsiConverter {
                     Ansi.GraphicRendition.FOREGROUND_CYAN -> style.color = Color.Cyan
                     Ansi.GraphicRendition.FOREGROUND_WHITE -> style.color = Color.White
                     Ansi.GraphicRendition.FOREGROUND_DEFAULT -> style.color = Color.Unspecified
-
+                    Ansi.GraphicRendition.FOREGROUND_RGB -> {
+                        style.color = Color(codes[index + 1], codes[index + 2], codes[index + 3])
+                        index += 4
+                    }
                     Ansi.GraphicRendition.BACKGROUND_BLACK -> style.background = Color.Black
                     Ansi.GraphicRendition.BACKGROUND_RED -> style.background = Color.Red
                     Ansi.GraphicRendition.BACKGROUND_GREEN -> style.background = Color.Green
@@ -57,6 +62,11 @@ object AnsiConverter {
                     Ansi.GraphicRendition.BACKGROUND_CYAN -> style.background = Color.Cyan
                     Ansi.GraphicRendition.BACKGROUND_WHITE -> style.background = Color.White
                     Ansi.GraphicRendition.BACKGROUND_DEFAULT -> style.background = Color.Unspecified
+                    Ansi.GraphicRendition.BACKGROUND_RGB -> {
+                        style.background =
+                            Color(codes[index + 1], codes[index + 2], codes[index + 3])
+                        index += 4
+                    }
                 }
             }
             pos++

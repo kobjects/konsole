@@ -31,19 +31,28 @@ object Ansi {
     val BACKGROUND_WHITE = selectGraphicRendition(GraphicRendition.BACKGROUND_WHITE)
     val BACKGROUND_DEFAULT = selectGraphicRendition(GraphicRendition.BACKGROUND_DEFAULT)
 
+    fun rgbForeground(rgb: Int) =
+        selectGraphicRendition(GraphicRendition.FOREGROUND_RGB.ordinal, 2, (rgb shr 16) and 255, (rgb shr 8) and 255, rgb and 255)
 
+    fun rgbBackground(rgb: Int) =
+        selectGraphicRendition(GraphicRendition.BACKGROUND_RGB.ordinal, 2, (rgb shr 16) and 255, (rgb shr 8) and 255, rgb and 255)
 
-    fun selectGraphicRendition(vararg code: GraphicRendition): String {
+    fun selectGraphicRendition(vararg code: Int): String {
         val sb = StringBuilder("\u001b[")
         if (code.isNotEmpty()) {
-            sb.append(code[0].ordinal)
+            sb.append(code[0])
             for (i in 1 until code.size) {
                 sb.append(';')
-                sb.append(code[i].ordinal)
+                sb.append(code[i])
             }
         }
         sb.append("m")
         return sb.toString()
+    }
+
+    fun selectGraphicRendition(vararg code: GraphicRendition): String {
+        val ordinals = IntArray(code.size) { code[it].ordinal }
+        return selectGraphicRendition(*ordinals)
     }
 
 
