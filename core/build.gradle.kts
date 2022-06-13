@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "org.kobjects.konsole"
-version = "0.2.0"
+version = "0.2.1"
 
 kotlin {
     android {
