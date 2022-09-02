@@ -13,6 +13,7 @@ import kotlin.coroutines.suspendCoroutine
 class ComposeKonsole : Konsole, ViewModel() {
     val entries = mutableStateListOf<Entry>()
     var request = mutableStateOf<Request?>(null)
+    var inputVisible = mutableStateOf(true)
 
     override fun write(s: String) {
         entries.add(Entry(s, input = false))

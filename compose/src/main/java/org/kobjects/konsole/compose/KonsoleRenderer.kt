@@ -1,5 +1,6 @@
 package org.kobjects.konsole.compose
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -64,33 +65,39 @@ fun RenderKonsole(
 
             textState.value = TextFieldValue()
             konsole.request.value = null
-
             request.consumer(text)
         }
-        Divider()
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            TextField(
-                modifier = Modifier.weight(1f),
-                colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = Color.Transparent),
-                isError = errorMessage.value != "",
-                enabled = konsole.request.value != null,
-                value = textState.value,
-                singleLine = true,
-                keyboardActions = KeyboardActions (
-                    onDone = { submit() },
-                    onSend = { submit() }),
-                onValueChange = {
-                    textState.value = it
-                }
-            )
-            Button(
-                modifier = Modifier.padding(4.dp),
-                enabled = konsole.request.value != null,
-                onClick = {
-                    submit()
-                }) {
+
+        if (konsole.inputVisible.value) {
+            Divider()
+            Row(
+                Modifier.background(Color(0x77ffffff)),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                TextField(
+                    modifier = Modifier.weight(1f),
+                    colors = TextFieldDefaults.textFieldColors(
+                        backgroundColor = Color.Transparent
+                    ),
+                    isError = errorMessage.value != "",
+                    enabled = konsole.request.value != null,
+                    value = textState.value,
+                    singleLine = true,
+                    keyboardActions = KeyboardActions(
+                        onDone = { submit() },
+                        onSend = { submit() }),
+                    onValueChange = {
+                        textState.value = it
+                    }
+                )
+                Button(
+                    modifier = Modifier.padding(4.dp),
+                    enabled = konsole.request.value != null,
+                    onClick = {
+                        submit()
+                    }) {
                     Text("Enter")
+                }
             }
         }
     }
