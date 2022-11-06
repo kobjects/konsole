@@ -10,5 +10,6 @@ rootProject.name = "konsole"
 include(":androidApp")
 include(":core")
 include(":compose")
+include(":demo")
 include(":jsApp")
 

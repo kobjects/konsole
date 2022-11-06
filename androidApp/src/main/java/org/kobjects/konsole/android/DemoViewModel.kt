@@ -13,11 +13,11 @@ class DemoViewModel : ViewModel() {
     val title = mutableStateOf("")
     val konsole = mutableStateOf<ComposeKonsole>(ComposeKonsole())
 
-    fun show(title: String, demo: suspend (Konsole) -> Unit) {
+    fun show(title: String, demo: suspend (read: suspend () -> String, write: (String) -> Unit) -> Unit) {
         this.title.value = title
         konsole.value = ComposeKonsole()
         viewModelScope.launch {
-            demo(konsole.value)
+            demo( {konsole.value.read()}, {konsole.value.write(it)} )
             this@DemoViewModel.title.value = ""
         }
     }

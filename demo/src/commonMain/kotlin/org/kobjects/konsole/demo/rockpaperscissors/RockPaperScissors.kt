@@ -1,6 +1,5 @@
 package org.kobjects.konsole.demo.rockpaperscissors
 
-import org.kobjects.konsole.Konsole
 import kotlin.random.Random
 
 enum class Choice {
@@ -39,24 +38,24 @@ fun compare(userChoice: Choice, computerChoice: Choice) =
         }
     }
 
-suspend fun readUserChoice(konsole: Konsole): Choice {
-    konsole.write("Rock, paper or scissors?")
+suspend fun readUserChoice(read: suspend () -> String, write: (String) -> Unit): Choice {
+    write("Rock, paper or scissors?")
     while (true) {
-        val input = konsole.read()
+        val input = read()
         val errorMessage = validateInput(input)
         if (errorMessage.isEmpty()) {
             return processInput(input)!!
         }
-        konsole.write(errorMessage)
+        write(errorMessage)
     }
 }
 
-suspend fun rockPaperScissors(konsole: Konsole) {
+suspend fun rockPaperScissors(read: suspend () -> String, write: (String) -> Unit) {
     while (true) {
-        val userChoice = readUserChoice(konsole)
+        val userChoice = readUserChoice(read, write)
         val computerChoice = Choice.values()[Random.nextInt(0, 3)]
 
-        konsole.write("I chose ${computerChoice.toString().lowercase()}")
-        konsole.write(compare(userChoice, computerChoice))
+        write("I chose ${computerChoice.toString().lowercase()}")
+        write(compare(userChoice, computerChoice))
     }
  }

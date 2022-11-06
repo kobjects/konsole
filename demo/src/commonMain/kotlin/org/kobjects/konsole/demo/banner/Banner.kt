@@ -1,7 +1,5 @@
 package org.kobjects.konsole.demo.banner
 
-import org.kobjects.konsole.Konsole
-
 /**
  * Game of Banner
  *
@@ -13,10 +11,10 @@ import org.kobjects.konsole.Konsole
  * Converted from Java to Kotlin by Stefan Haustein
  */
 
-suspend fun banner(konsole: Konsole) {
+suspend fun banner(read: suspend () -> String, write: (String) -> Unit ) {
     while (true) {
-        konsole.write("Text?")
-        val statement = konsole.read().uppercase()
+        write("Text?")
+        val statement = read().uppercase()
 
         if (statement.isBlank()) {
             break
@@ -32,7 +30,7 @@ suspend fun banner(konsole: Konsole) {
             sb.append((FONT[cp] ?: FONT["?"]!!).trimIndent());
             sb.append("\n⬜⬜⬜⬜⬜⬜⬜\n")
         }
-        konsole.write(sb.toString())
+        write(sb.toString())
     }
 }
 

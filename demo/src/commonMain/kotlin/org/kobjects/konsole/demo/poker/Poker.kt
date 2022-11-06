@@ -1,7 +1,5 @@
 package org.kobjects.konsole.demo.poker
 
-import org.kobjects.konsole.Ansi
-import org.kobjects.konsole.Konsole
 import kotlin.math.floor
 import kotlin.math.min
 import kotlin.random.Random
@@ -10,7 +8,9 @@ fun random() = Random.Default.nextDouble()
 
 fun random10() = (10 * random()).toInt()
 
-class Poker(val konsole: Konsole) {
+class Poker(
+    val read: suspend () -> String,
+    val write: (String) -> Unit) {
 
     val allCards = mutableListOf<Card>()
     var computerCash = 0
@@ -21,21 +21,21 @@ class Poker(val konsole: Konsole) {
     var tieTackSold = false
 
     suspend fun queryCardNumbers(): List<Int> {
-        konsole.write("Now we draw -- which cards do you want to replace?")
+        write("Now we draw -- which cards do you want to replace?")
         while (true) {
-            val s = konsole.read()
+            val s = read()
             val cards = mutableListOf<Int>()
             var valid = true
             for (c in s) {
                 if (c in '1'..'5') {
                     if (cards.size >= 3) {
-                        konsole.write("No more than 3 cards.")
+                        write("No more than 3 cards.")
                         valid = false
                         break
                     }
                     cards.add(c.code - '0'.code)
                 } else if (c > ' ' && c != ',' && c != '.' && c != ';') {
-                    konsole.write("Invalid card number '$c'")
+                    write("Invalid card number '$c'")
                     valid = false
                     break
                 }
@@ -43,19 +43,19 @@ class Poker(val konsole: Konsole) {
             if (valid) {
                 return cards.toList()
             }
-            konsole.write("Please enter a list of card numbers, e.g. '1 2'. If you wish to replace no cards, don't fill anything")
+            write("Please enter a list of card numbers, e.g. '1 2'. If you wish to replace no cards, don't fill anything")
         }
     }
 
     suspend fun yesNo(question: String): Boolean {
         while (true) {
-            konsole.write(question)
-            val text = konsole.read().lowercase()
+            write(question)
+            val text = read().lowercase()
             when (text) {
                 "yes", "y" -> return true
                 "no", "n" -> return false
             }
-            konsole.write("Answer yes or no, please.")
+            write("Answer yes or no, please.")
         }
     }
 
@@ -73,14 +73,14 @@ class Poker(val konsole: Konsole) {
 
 
     suspend fun playerLowInMoney() {
-        konsole.write("You can't bet with what you haven't got.")
+        write("You can't bet with what you haven't got.")
         if (!watchSold) {
             if (yesNo("Would you like to sell your watch?")) {
                 if (Random.Default.nextDouble() < 0.7) {
-                    konsole.write("I'll give you $75 for it.\n")
+                    write("I'll give you $75 for it.\n")
                     playerCash += 75;
                 } else {
-                    konsole.write("That's a pretty crummy watch - I'll give you $25.\n")
+                    write("That's a pretty crummy watch - I'll give you $25.\n")
                     playerCash += 25;
                 }
                 watchSold = true
@@ -90,10 +90,10 @@ class Poker(val konsole: Konsole) {
         if (!tieTackSold) {
             if (yesNo("Will you part with that diamond tie tack")) {
                 if (Random.Default.nextDouble() < 0.6) {
-                    konsole.write("You are now $100 richer.\n")
+                    write("You are now $100 richer.\n")
                     playerCash += 100;
                 } else {
-                    konsole.write("It's paste. $25.\n")
+                    write("It's paste. $25.\n")
                     playerCash += 25;
                 }
                 tieTackSold = true
@@ -123,11 +123,11 @@ class Poker(val konsole: Konsole) {
     suspend fun askForAmount(minimum: Int): Int {
         while (true) {
             if (minimum == 0) {
-                konsole.write("Fold, check or rise to <amount>?")
+                write("Fold, check or rise to <amount>?")
             } else {
-                konsole.write("Fold, see or rise to <amount>?")
+                write("Fold, see or rise to <amount>?")
             }
-            val input = konsole.read().trim().lowercase()
+            val input = read().trim().lowercase()
             if (input == "f" || input == "fold") {
                 return -1
             }
@@ -141,14 +141,14 @@ class Poker(val konsole: Konsole) {
             try {
                 val d = input.toDouble()
                 if (d != floor(d) || d < 0) {
-                    konsole.write("No small change, please.")
+                    write("No small change, please.")
                 } else if (d < minimum) {
-                    konsole.write("If you can't see my bet, then fold.")
+                    write("If you can't see my bet, then fold.")
                 } else {
                     return d.toInt()
                 }
             } catch (e: Exception) {
-                konsole.write("Amount not recognized.")
+                write("Amount not recognized.")
             }
         }
     }
@@ -166,15 +166,15 @@ class Poker(val konsole: Konsole) {
                 -1 -> {
                     playerCash += pot
                     pot = 0
-                    konsole.write("I fold")
+                    write("I fold")
                     return true
                 }
                 0 -> {
-                    konsole.write("I'll check.")
+                    write("I'll check.")
                 }
                 else -> {
                     computerBet = amount
-                    konsole.write("I'll open with $$amount.")
+                    write("I'll open with $$amount.")
                 }
             }
         }
@@ -186,7 +186,7 @@ class Poker(val konsole: Konsole) {
                     playerCash -= playerBet
                     computerCash += playerBet + pot
                     pot = 0
-                    konsole.write("I win.")
+                    write("I win.")
                     return true
                 }
                 if (playerCash - amount < 0) {
@@ -207,16 +207,16 @@ class Poker(val konsole: Konsole) {
                     computerCash -= computerBet
                     playerCash += computerBet + pot
                     pot = 0
-                    konsole.write("I fold")
+                    write("I fold")
                     return true
                 }
                 playerBet -> {
-                    konsole.write("I'll see you.")
+                    write("I'll see you.")
                     computerBet = playerBet
                     break
                 }
                 else -> {
-                    konsole.write("I raise to $amount")
+                    write("I raise to $amount")
                     computerBet = amount
                 }
             }
@@ -247,26 +247,26 @@ class Poker(val konsole: Konsole) {
 
     // Main program
     suspend fun run() {
-        konsole.write("${Ansi.BOLD}POKER${Ansi.NORMAL_INTENSITY}\nCreative Computing Morristown, New Jersey")
-        konsole.write(
+        write("POKER\nCreative Computing Morristown, New Jersey")
+        write(
             """
             Welcome to the casino. We each have $200.
             I will open the betting before the draw; you open after.""".trimIndent()
         )
-        konsole.write("Enough talk -- let's get down to ${Ansi.ITALIC}business${Ansi.NORMAL_STYLE}.")
+        write("Enough talk -- let's get down to business.")
         computerCash = 200
         playerCash = 200
 
         while (true) {
             playRound()
 
-            konsole.write("Now I have $$computerCash and you have $$playerCash.")
+            write("Now I have $$computerCash and you have $$playerCash.")
 
             if (computerCash <= 5) {
                 computerLowInMoney()
             }
             if (computerCash <= 5) {
-                konsole.write("I'm busted. Congratulations!")
+                write("I'm busted. Congratulations!")
                 break
             }
             if (!yesNo("Another round?")) {
@@ -276,14 +276,14 @@ class Poker(val konsole: Konsole) {
                 playerLowInMoney()
             }
             if (playerCash <= 5) {
-                konsole.write("Your wad is shot!")
+                write("Your wad is shot!")
                 break;
             }
         }
     }
 
     suspend fun playRound() {
-        konsole.write("The ante is $5, I will deal.")
+        write("The ante is $5, I will deal.")
         pot += 10;
         playerCash -= 5;
         computerCash -= 5;
@@ -293,7 +293,7 @@ class Poker(val konsole: Konsole) {
         val playerHand = Hand(List(5) { dealCard() })
 
         playerHand.sort()
-        konsole.write("Your hand:\n$playerHand")
+        write("Your hand:\n$playerHand")
 
         var computerEvaluation = computerHand.sortAndEvaluate()
         if (bettingRound(beforeDraw = true, computerRank = computerEvaluation.rank)) {
@@ -305,7 +305,7 @@ class Poker(val konsole: Konsole) {
             playerHand.replaceCard(cn - 1, dealCard());
         }
         playerHand.sort()
-        konsole.write("Your new hand:\n$playerHand")
+        write("Your new hand:\n$playerHand")
         var count = 0
         for (u in 0..4) {
             if (!computerEvaluation.hold[u]) {
@@ -317,34 +317,34 @@ class Poker(val konsole: Konsole) {
         }
 
         if (count == 1) {
-            konsole.write("I am taking one card.")
+            write("I am taking one card.")
         } else {
-            konsole.write("I am taking $count cards.")
+            write("I am taking $count cards.")
         }
         computerEvaluation = computerHand.sortAndEvaluate();
         if (bettingRound(false, computerEvaluation.rank)) {
             return
         }
 
-        konsole.write("Now we compare hands.")
-        konsole.write("My Hand:\n$computerHand")
+        write("Now we compare hands.")
+        write("My Hand:\n$computerHand")
         val playerEvaluation = playerHand.sortAndEvaluate();
-        konsole.write("You have $playerEvaluation.")
+        write("You have $playerEvaluation.")
 
-        konsole.write("And I have $computerEvaluation.")
+        write("And I have $computerEvaluation.")
         when (computerEvaluation.compareTo(playerEvaluation)) {
             1 -> {
-                konsole.write("I win.")
+                write("I win.")
                 computerCash += pot
                 pot = 0
             }
             -1 -> {
-                konsole.write("You win.")
+                write("You win.")
                 playerCash += pot
                 pot = 0
             }
             else -> {
-                konsole.write("The hand is Drawn; all $$pot remains in the pot.")
+                write("The hand is Drawn; all $$pot remains in the pot.")
             };
         }
     }

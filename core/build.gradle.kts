@@ -30,7 +30,7 @@ kotlin {
         ios.deploymentTarget = "14.1"
         podfile = project.file("../iosApp/Podfile")
         framework {
-            baseName = "shared"
+            baseName = "core"
         }
     }
     
@@ -90,9 +90,7 @@ kotlin {
     }
 }
 
-dependencies {
-    implementation("androidx.compose.compiler:compiler:1.2.0-alpha03")
-}
+
 android {
     compileSdk = 32
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
@@ -100,4 +98,5 @@ android {
         minSdk = 21
         targetSdk = 32
     }
+    namespace = "org.kobjects.konsole"
 }

@@ -1,9 +1,6 @@
 import SwiftUI
 import shared
 
-
-
-
 struct DemoView: View {
     var demo: Demo
     @State var output: [Output] = []
@@ -53,7 +50,7 @@ struct DemoView: View {
         .onAppear{
             konsole.writeFunction = write
             konsole.readFunction = read
-            demo.run(konsole: konsole) { result, error in
+            demo.run(read, write) { result, error in
                 output.append(Output(text: "(terminated)", right: false))
             }
         }

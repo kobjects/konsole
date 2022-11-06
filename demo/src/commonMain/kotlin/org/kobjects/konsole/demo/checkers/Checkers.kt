@@ -1,28 +1,25 @@
 package org.kobjects.konsole.demo.checkers
 
-import org.kobjects.konsole.Konsole
 import kotlin.math.abs
 
-
-
-suspend fun checkers(konsole: Konsole) {
-    konsole.write("Checkers")
-    konsole.write("Creative Computing Morristown, New Jersey")
-    konsole.write("""
+suspend fun checkers(read: suspend () -> String, write: (String) -> Unit) {
+    write("Checkers")
+    write("Creative Computing Morristown, New Jersey")
+    write("""
             This is the game of Checkers. The computer is black,
             and you are white. The computer will move first. 
             Squares are referred to by a coordinate system.""".trimIndent().replace('\n', ' '));
-    konsole.write("""
+    write("""
             a1 is the lower left corner
             a8 is the upper left corner
             h1 is the lower right corner
             h8 is the upper right corner""".trimIndent())
 
     while (true) {
-        Checkers().run(konsole)
+        Checkers().run(read, write)
 
-        konsole.write("Another game?")
-        val answer = konsole.read().lowercase()
+        write("Another game?")
+        val answer = read().lowercase()
         if (answer != "y" && answer != "yes") {
             break
         }
@@ -33,7 +30,7 @@ class Checkers {
     val board = Array(8, { IntArray(8, {0}) })
     val g = -1
 
-    suspend fun run(konsole: Konsole) {
+    suspend fun run(read: suspend () -> String, write: (String) -> Unit) {
 
         var p = 0
         for (x in 0..7) {
@@ -45,11 +42,11 @@ class Checkers {
         while (true) {
             val description = computerMove()
             if (description.isEmpty()) {
-                konsole.write("You win!")
+                write("You win!")
                 break
             }
-            konsole.write(description.toString())
-            konsole.write(renderBoard())
+            write(description.toString())
+            write(renderBoard())
 
             var anyComputerPiece = false;
             var anyPlayerPiece = false;
@@ -64,20 +61,20 @@ class Checkers {
                 }
             }
             if (!anyPlayerPiece) {
-                konsole.write("I win.");
+                write("I win.");
                 break;
             }
             if (!anyComputerPiece) {
-                konsole.write("You win.");
+                write("You win.");
                 break;
             }
             while (true) {
-                konsole.write("Your move?")
-                val problem = playerMove(konsole.read().trim().lowercase())
+                write("Your move?")
+                val problem = playerMove(read().trim().lowercase())
                 if (problem.isEmpty()) {
                     break
                 }
-                konsole.write(problem)
+                write(problem)
             }
         }
     }
