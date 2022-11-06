@@ -13,13 +13,13 @@ kotlin {
         publishLibraryVariants("release", "debug")
     }
     iosX64()
-    iosArm64()
-    iosSimulatorArm64() // sure all ios dependencies support this target
+  //  iosArm64()
+  //  iosSimulatorArm64() // sure all ios dependencies support this target
 
     jvm("desktop")
 
     js(IR) {
-      //  useCommonJs()
+   //     useCommonJs()
         browser()
     }
 
@@ -35,24 +35,28 @@ kotlin {
     }
     
     sourceSets {
-        val commonMain by getting
-            val iosX64Main by getting
-        val iosArm64Main by getting
-        val iosSimulatorArm64Main by getting
+        val commonMain by getting {
+            dependencies {
+                implementation("org.kobjects.ktxml:core:0.2.1")
+            }
+        }
+        val iosX64Main by getting
+    //    val iosArm64Main by getting
+    //    val iosSimulatorArm64Main by getting
         val iosMain by creating {
             dependsOn(commonMain)
             iosX64Main.dependsOn(this)
-            iosArm64Main.dependsOn(this)
-            iosSimulatorArm64Main.dependsOn(this)
+      //      iosArm64Main.dependsOn(this)
+       //     iosSimulatorArm64Main.dependsOn(this)
         }
         val desktopMain by getting
         val desktopTest by getting
+
+        val jsMain by getting
+        val jsTest by getting
     }
 }
 
-dependencies {
-    implementation("org.kobjects.ktxml:core:0.2.1")
-}
 
 android {
     compileSdk = 32
