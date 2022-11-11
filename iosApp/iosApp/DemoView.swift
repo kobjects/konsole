@@ -1,5 +1,5 @@
 import SwiftUI
-import shared
+import demo
 
 struct DemoView: View {
     var demo: Demo
@@ -50,7 +50,7 @@ struct DemoView: View {
         .onAppear{
             konsole.writeFunction = write
             konsole.readFunction = read
-            demo.run(read, write) { result, error in
+            demo.run(konsole: konsole) {  /*result,*/ error in
                 output.append(Output(text: "(terminated)", right: false))
             }
         }

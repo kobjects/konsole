@@ -1,6 +1,7 @@
 package org.kobjects.konsole.demo
 
-import Hangman
+import org.kobjects.konsole.Konsole
+import org.kobjects.konsole.demo.hangman.Hangman
 import org.kobjects.konsole.demo.banner.banner
 import org.kobjects.konsole.demo.checkers.checkers
 import org.kobjects.konsole.demo.ktxml.ktXmlDemo
@@ -21,6 +22,10 @@ class Demo(
             Demo(74,"Rock, Paper, Scissors", ::rockPaperScissors),
             Demo(0, "KtXml", ::ktXmlDemo)
         )
+    }
+
+    suspend fun run(konsole: Konsole) {
+        run (konsole::read, konsole::write)
     }
 
     suspend fun run(read: suspend () -> String, write: (String) -> Unit) {

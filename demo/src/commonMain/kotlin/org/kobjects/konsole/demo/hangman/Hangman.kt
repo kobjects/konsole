@@ -1,3 +1,4 @@
+package org.kobjects.konsole.demo.hangman
 
 import kotlin.random.Random
 

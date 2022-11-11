@@ -67,6 +67,9 @@ object AnsiConverter {
                             Color(codes[index + 1], codes[index + 2], codes[index + 3])
                         index += 4
                     }
+                    else -> {
+                        throw IllegalArgumentException()
+                    }
                 }
             }
             pos++

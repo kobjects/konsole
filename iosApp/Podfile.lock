@@ -1,21 +1,16 @@
 PODS:
-  - core (0.2.2)
   - demo (0.2.2)
 
 DEPENDENCIES:
-  - core (from `../core`)
   - demo (from `../demo`)
 
 EXTERNAL SOURCES:
-  core:
-    :path: "../core"
   demo:
     :path: "../demo"
 
 SPEC CHECKSUMS:
-  core: c6a3358bb80b7d432032666dced4ba57dbc5fd01
-  demo: a1e6d8580879684d4ae1eb7a583bd63fcdbb1a2f
+  demo: ba2f768e183abec8a4f1e72efa63b3739ff4a798
 
-PODFILE CHECKSUM: 03402e9a08103066905e02309d004724de696bba
+PODFILE CHECKSUM: 8b9a17ea90421cac540152758feaa63690f5ea11
 
 COCOAPODS: 1.11.3

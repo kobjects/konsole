@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.compose.compiler:compiler:1.2.0-alpha08")
+    implementation("androidx.compose.compiler:compiler:1.3.2")
 }
 
 
@@ -26,7 +26,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.2.0-alpha08"
+        kotlinCompilerExtensionVersion = "1.3.2"
     }
 
 

@@ -1,6 +1,6 @@
 import SwiftUI
 
-import shared
+import demo
 
 struct ContentView: View {
 	let greet = "HelloWorld"
