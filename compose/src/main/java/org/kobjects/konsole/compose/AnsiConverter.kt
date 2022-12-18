@@ -18,7 +18,7 @@ object AnsiConverter {
     ): AnnotatedString {
         var pos = 0
         val len = ansi.length
-        var style = Style()
+        var style = Style(defaultFontFamily, monospaceFontFamily)
         val sb = AnnotatedString.Builder()
         while (pos < len) {
             val esc = ansi.indexOf("\u001b[", pos)
@@ -34,7 +34,7 @@ object AnsiConverter {
             var index = 0
             while (index < codes.size) {
                 when (Ansi.GraphicRendition.values()[codes[index++]]) {
-                    Ansi.GraphicRendition.RESET -> style = Style()
+                    Ansi.GraphicRendition.RESET -> style = Style(defaultFontFamily, monospaceFontFamily)
 
                     Ansi.GraphicRendition.BOLD -> style.bold = true
                     Ansi.GraphicRendition.ITALIC -> style.italic = true
@@ -88,7 +88,7 @@ object AnsiConverter {
         sb.addStyle(style.toSpanStyle(), start, start + s.length)
     }
 
-    class Style {
+    class Style(val defaultFontFamily: FontFamily, val monospaceFontFamily: FontFamily) {
         var bold = false
         var underline = false
         var italic = false
@@ -98,7 +98,7 @@ object AnsiConverter {
 
         fun toSpanStyle() = SpanStyle(
             fontWeight = if (bold) FontWeight.Bold else null,
-            fontFamily = if (monospace) FontFamily.Monospace else FontFamily.Default,
+            fontFamily = if (monospace) monospaceFontFamily else defaultFontFamily,
             fontStyle = if (italic) FontStyle.Italic else FontStyle.Normal,
             textDecoration = if (underline) TextDecoration.Underline else null,
             color = color,
