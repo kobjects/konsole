@@ -11,7 +11,11 @@ import org.kobjects.konsole.Ansi
 
 object AnsiConverter {
 
-    fun ansiToAnnotatedString(ansi: String): AnnotatedString {
+    fun ansiToAnnotatedString(
+        ansi: String,
+        defaultFontFamily: FontFamily = FontFamily.Default,
+        monospaceFontFamily: FontFamily = FontFamily.Monospace,
+    ): AnnotatedString {
         var pos = 0
         val len = ansi.length
         var style = Style()
