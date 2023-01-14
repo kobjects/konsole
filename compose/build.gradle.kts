@@ -6,7 +6,7 @@ plugins {
 
 
 group = "org.kobjects.konsole"
-version = "0.2.3"
+version = "0.2.4"
 
 
 dependencies {
@@ -59,7 +59,7 @@ publishing {
         register<MavenPublication>("release") {
             groupId = "org.kobjects.konsole"
             artifactId = "compose"
-            version = "0.2.3"
+            version = "0.2.4"
 
             afterEvaluate {
                 from(components["release"])

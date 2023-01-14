@@ -61,10 +61,10 @@ fun RenderKonsole(
         fun submit() {
             val text = textState.value.text
             konsole.entries.add(ComposeKonsole.Entry(text, true))
-            val request = konsole.request.value!!
+            val request = konsole.requests.last()
 
             textState.value = TextFieldValue()
-            konsole.request.value = null
+            konsole.requests.removeLast()
             request.consumer(text)
         }
 
@@ -80,7 +80,7 @@ fun RenderKonsole(
                         backgroundColor = Color.Transparent
                     ),
                     isError = errorMessage.value != "",
-                    enabled = konsole.request.value != null,
+                    enabled = konsole.requests.isNotEmpty(),
                     value = textState.value,
                     singleLine = true,
                     keyboardActions = KeyboardActions(
@@ -92,7 +92,7 @@ fun RenderKonsole(
                 )
                 Button(
                     modifier = Modifier.padding(4.dp),
-                    enabled = konsole.request.value != null,
+                    enabled = konsole.requests.isNotEmpty(),
                     onClick = {
                         submit()
                     }) {
