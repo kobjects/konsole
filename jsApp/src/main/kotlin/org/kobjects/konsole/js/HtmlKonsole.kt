@@ -20,12 +20,13 @@ fun element(name: String, vararg children: Any): HTMLElement {
     return element
 }
 
+fun br(vararg children: Any) = element("br", *children) as HTMLBRElement
 fun textArea(vararg children: Any) = element("textarea", *children) as HTMLTextAreaElement
 fun div(vararg children: Any) = element("div", *children) as HTMLDivElement
 
 class HtmlKonsole : Konsole {
-    private val input = textArea("disabled" to "disabled", "class" to "konsole-input") as HTMLTextAreaElement
-    private val enter = div("disabled" to "disabled", "class" to "konsole-button", "Enter")
+    private val input = textArea("disabled" to "disabled", "class" to "konsole-input", "id" to "konsole-input") as HTMLTextAreaElement
+    private val enter = div("disabled" to "disabled", "class" to "konsole-button", "»")
     private val inputContainer = div("class" to "konsole-input-container", input, enter)
     private val contentContainer = div("class" to "konsole-content-container")
     val root = div("class" to "konsole-root",  contentContainer, inputContainer)
@@ -73,11 +74,12 @@ class HtmlKonsole : Konsole {
         append(text, "konsole-bubble-output")
     }
 
-    override suspend fun read() = suspendCoroutine<String> { continuation ->
+    override suspend fun read(label: String?) = suspendCoroutine<String> { continuation ->
         if (request != null) {
             throw IllegalStateException("Request pending!")
         }
         input.disabled = false
+        input.placeholder = label ?: ""
         input.focus()
         request = Request { continuation.resume(it) }
     }

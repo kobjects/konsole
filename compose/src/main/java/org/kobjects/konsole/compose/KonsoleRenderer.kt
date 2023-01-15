@@ -9,6 +9,11 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.DoubleArrow
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowRight
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -74,6 +79,7 @@ fun RenderKonsole(
                 Modifier.background(Color(0x77ffffff)),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                val topRequest = konsole.requests.lastOrNull()
                 TextField(
                     modifier = Modifier.weight(1f),
                     colors = TextFieldDefaults.textFieldColors(
@@ -88,15 +94,17 @@ fun RenderKonsole(
                         onSend = { submit() }),
                     onValueChange = {
                         textState.value = it
-                    }
+                    },
+                    label = { if (topRequest != null && topRequest.label != null) Text(topRequest.label) }
                 )
-                Button(
+                IconButton(
                     modifier = Modifier.padding(4.dp),
                     enabled = konsole.requests.isNotEmpty(),
                     onClick = {
                         submit()
                     }) {
-                    Text("Enter")
+                    // Text("Enter")
+                    Icon(Icons.Default.Done, "Enter")
                 }
             }
         }

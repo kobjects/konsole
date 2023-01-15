@@ -38,10 +38,9 @@ fun compare(userChoice: Choice, computerChoice: Choice) =
         }
     }
 
-suspend fun readUserChoice(read: suspend () -> String, write: (String) -> Unit): Choice {
-    write("Rock, paper or scissors?")
+suspend fun readUserChoice(read: suspend (String?) -> String, write: (String) -> Unit): Choice {
     while (true) {
-        val input = read()
+        val input = read("Rock, paper or scissors?")
         val errorMessage = validateInput(input)
         if (errorMessage.isEmpty()) {
             return processInput(input)!!
@@ -50,7 +49,7 @@ suspend fun readUserChoice(read: suspend () -> String, write: (String) -> Unit):
     }
 }
 
-suspend fun rockPaperScissors(read: suspend () -> String, write: (String) -> Unit) {
+suspend fun rockPaperScissors(read: suspend (String?) -> String, write: (String) -> Unit) {
     while (true) {
         val userChoice = readUserChoice(read, write)
         val computerChoice = Choice.values()[Random.nextInt(0, 3)]

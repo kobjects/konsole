@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name                     = 'demo'
-    spec.version                  = '0.2.2'
+    spec.version                  = '0.3.0'
     spec.homepage                 = 'Link to the Demo Module homepage'
     spec.source                   = { :http=> ''}
     spec.authors                  = ''

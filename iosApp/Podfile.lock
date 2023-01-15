@@ -1,5 +1,5 @@
 PODS:
-  - demo (0.2.2)
+  - demo (0.3.0)
 
 DEPENDENCIES:
   - demo (from `../demo`)
@@ -9,7 +9,7 @@ EXTERNAL SOURCES:
     :path: "../demo"
 
 SPEC CHECKSUMS:
-  demo: ba2f768e183abec8a4f1e72efa63b3739ff4a798
+  demo: f2943f5438f089b8dad2555b77748ee5ba849df2
 
 PODFILE CHECKSUM: 8b9a17ea90421cac540152758feaa63690f5ea11
 

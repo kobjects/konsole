@@ -13,8 +13,8 @@ struct DemoView: View {
         output.append(Output(text: text, right: false))
     }
 
-    func read(consumer: @escaping (String) -> KotlinUnit) {
-        requests.append(InputRequest(consumer: consumer))
+    func read(label: String?, consumer: @escaping (String) -> KotlinUnit) {
+        requests.append(InputRequest(label: label, consumer: consumer))
     }
 
     var body: some View {
@@ -31,7 +31,7 @@ struct DemoView: View {
                 HStack {
                     let disabled = requests.isEmpty
                     let request = disabled ? nil : requests[0]
-                    TextField("", text: $input)
+                    TextField(request?.label ?? "", text: $input)
                     .disabled(disabled)
                     Button("Enter", action: {
                         if (request != nil) {
@@ -64,6 +64,7 @@ struct DemoView: View {
     }
 
     struct InputRequest {
+        let label: String?
         let consumer: (String) -> KotlinUnit
     }
 

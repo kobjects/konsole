@@ -7,5 +7,5 @@ interface Konsole {
 
     fun write(s: String)
 
-    suspend fun read(): String
+    suspend fun read(label: String? = null): String
 }

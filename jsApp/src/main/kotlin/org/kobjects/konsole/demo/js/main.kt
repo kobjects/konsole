@@ -48,7 +48,7 @@ fun main() {
             konsoleContainer.innerText = ""
             konsoleContainer.appendChild(konsole.root)
             GlobalScope.launch {
-                demo.run( { konsole.read() }, { konsole.write(it) } )
+                demo.run( { konsole.read(it) }, { konsole.write(it) } )
                 window.location.hash = "#"
             }
         }

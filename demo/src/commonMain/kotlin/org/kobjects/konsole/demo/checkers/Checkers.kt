@@ -2,7 +2,7 @@ package org.kobjects.konsole.demo.checkers
 
 import kotlin.math.abs
 
-suspend fun checkers(read: suspend () -> String, write: (String) -> Unit) {
+suspend fun checkers(read: suspend (String?) -> String, write: (String) -> Unit) {
     write("Checkers")
     write("Creative Computing Morristown, New Jersey")
     write("""
@@ -18,8 +18,7 @@ suspend fun checkers(read: suspend () -> String, write: (String) -> Unit) {
     while (true) {
         Checkers().run(read, write)
 
-        write("Another game?")
-        val answer = read().lowercase()
+        val answer = read("Another game?").lowercase()
         if (answer != "y" && answer != "yes") {
             break
         }
@@ -30,7 +29,7 @@ class Checkers {
     val board = Array(8, { IntArray(8, {0}) })
     val g = -1
 
-    suspend fun run(read: suspend () -> String, write: (String) -> Unit) {
+    suspend fun run(read: suspend (String?) -> String, write: (String) -> Unit) {
 
         var p = 0
         for (x in 0..7) {
@@ -69,8 +68,7 @@ class Checkers {
                 break;
             }
             while (true) {
-                write("Your move?")
-                val problem = playerMove(read().trim().lowercase())
+                val problem = playerMove(read("Your move?").trim().lowercase())
                 if (problem.isEmpty()) {
                     break
                 }

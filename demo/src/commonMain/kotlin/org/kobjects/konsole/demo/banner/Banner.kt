@@ -11,10 +11,9 @@ package org.kobjects.konsole.demo.banner
  * Converted from Java to Kotlin by Stefan Haustein
  */
 
-suspend fun banner(read: suspend () -> String, write: (String) -> Unit ) {
+suspend fun banner(read: suspend (String?) -> String, write: (String) -> Unit ) {
     while (true) {
-        write("Text?")
-        val statement = read().uppercase()
+        val statement = read("Text?").uppercase()
 
         if (statement.isBlank()) {
             break

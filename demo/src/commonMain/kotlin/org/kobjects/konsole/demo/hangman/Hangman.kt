@@ -9,7 +9,7 @@ import kotlin.random.Random
  */
 
 class Hangman(
-    val read: suspend () -> String,
+    val read: suspend (String?) -> String,
     val write: (String) -> Unit
 ) {
 
@@ -75,8 +75,7 @@ class Hangman(
 
         while(misses < 10) {
             write("Misses: $lettersUsed\nDiscovered: $discovered")
-            write("Your guess?")
-            val guess = read().trim().uppercase()
+            val guess = read("Your guess?").trim().uppercase()
 
             if (guess.length == 0) {
                 write("Do you want to give up?")
@@ -206,7 +205,7 @@ class Hangman(
         write(sb.toString())
     }
 
-    suspend fun yesNo() = when (read().lowercase()) {
+    suspend fun yesNo() = when (read(null).lowercase()) {
         "yes", "y" -> true
         else -> false
 

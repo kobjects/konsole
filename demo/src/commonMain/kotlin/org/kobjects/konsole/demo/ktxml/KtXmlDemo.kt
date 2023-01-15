@@ -3,10 +3,10 @@ package org.kobjects.konsole.demo.ktxml
 import org.kobjects.ktxml.mini.MiniXmlPullParser
 import org.kobjects.ktxml.api.EventType
 
-suspend fun ktXmlDemo(read: suspend () -> String, write: (String) -> Unit) {
+suspend fun ktXmlDemo(read: suspend (String?) -> String, write: (String) -> Unit) {
     write("Enter XML an XML snippet see the corresponding KtXml parsing events.")
     while(true) {
-        val input = read()
+        val input = read("XML?")
         if (input.isBlank()) {
             break
         }

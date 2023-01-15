@@ -11,7 +11,7 @@ import org.kobjects.konsole.demo.rockpaperscissors.rockPaperScissors
 class Demo(
     val number: Int,
     val name: String,
-    val code: suspend (read: suspend () -> String, write: (String) -> Unit) -> Unit
+    val code: suspend (read: suspend (String?) -> String, write: (String) -> Unit) -> Unit
 ) {
     companion object {
         val ALL = listOf(
@@ -28,7 +28,7 @@ class Demo(
         run (konsole::read, konsole::write)
     }
 
-    suspend fun run(read: suspend () -> String, write: (String) -> Unit) {
+    suspend fun run(read: suspend (String?) -> String, write: (String) -> Unit) {
         println("run $this")
         code(read, write)
     }

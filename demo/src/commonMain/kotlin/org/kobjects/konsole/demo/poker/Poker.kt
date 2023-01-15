@@ -9,7 +9,7 @@ fun random() = Random.Default.nextDouble()
 fun random10() = (10 * random()).toInt()
 
 class Poker(
-    val read: suspend () -> String,
+    val read: suspend (String?) -> String,
     val write: (String) -> Unit) {
 
     val allCards = mutableListOf<Card>()
@@ -23,7 +23,7 @@ class Poker(
     suspend fun queryCardNumbers(): List<Int> {
         write("Now we draw -- which cards do you want to replace?")
         while (true) {
-            val s = read()
+            val s = read("Card numbers?")
             val cards = mutableListOf<Int>()
             var valid = true
             for (c in s) {
@@ -50,7 +50,7 @@ class Poker(
     suspend fun yesNo(question: String): Boolean {
         while (true) {
             write(question)
-            val text = read().lowercase()
+            val text = read("y/n").lowercase()
             when (text) {
                 "yes", "y" -> return true
                 "no", "n" -> return false
@@ -122,12 +122,12 @@ class Poker(
 
     suspend fun askForAmount(minimum: Int): Int {
         while (true) {
-            if (minimum == 0) {
-                write("Fold, check or rise to <amount>?")
-            } else {
-                write("Fold, see or rise to <amount>?")
-            }
-            val input = read().trim().lowercase()
+            val question = if (minimum == 0)
+                "Fold, check or rise to <amount>?"
+             else
+                "Fold, see or rise to <amount>?"
+
+            val input = read(question).trim().lowercase()
             if (input == "f" || input == "fold") {
                 return -1
             }

@@ -20,8 +20,8 @@ class ComposeKonsole : Konsole, ViewModel() {
         entries.add(Entry(s, input = false))
     }
 
-    override suspend fun read() = suspendCancellableCoroutine<String> { continuation ->
-        val request = Request { continuation.resume(it) }
+    override suspend fun read(label: String?) = suspendCancellableCoroutine<String> { continuation ->
+        val request = Request(label) { continuation.resume(it) }
        requests.add(request)
         continuation.invokeOnCancellation {
             requests.remove(request)
@@ -31,5 +31,7 @@ class ComposeKonsole : Konsole, ViewModel() {
 
     data class Entry(val value: String, val input: Boolean)
 
-    data class Request(val consumer: (String) -> Unit)
+    data class Request(
+        val label: String?,
+        val consumer: (String) -> Unit)
 }
