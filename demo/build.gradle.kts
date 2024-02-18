@@ -38,6 +38,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation("org.kobjects.ktxml:core:0.2.2")
+                implementation("org.kobjects.parserlib:examples:0.7.4")
                 implementation(project(":core"))
             }
         }
