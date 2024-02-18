@@ -1,6 +1,6 @@
 # Look, no UI!
 
-Programming is easy -- UI programming is hard!
+Many programs don't require a sophisiticated UI.
 
 This project provides a super simple Kotlin console API -- and a bunch of implementaitons for various platforms -- including Web, Android, iOS and a "plain" command line.
 
