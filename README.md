@@ -1,4 +1,4 @@
-# Look, no UI needed!
+# Look, no UI!
 
 Programming is easy -- UI programming is hard!
 
