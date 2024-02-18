@@ -1,6 +1,11 @@
 # Compiled class file
 *.class
 
+
+# Locks
+*.lock
+
+
 # Log file
 *.log
 
