@@ -1,4 +1,4 @@
-# konsole
+# Look, no UI needed!
 
 Programming is easy -- UI programming is hard!
 
