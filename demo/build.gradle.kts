@@ -1,71 +1,72 @@
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
+
 plugins {
-    kotlin("multiplatform")
-    kotlin("native.cocoapods")
-    id("com.android.library")
-    id("maven-publish")
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.androidLibrary)
+    id("module.publication")
 }
 
-group = "org.kobjects.konsole.demo"
-version = "0.3.0"
-
 kotlin {
-    android {
-        publishLibraryVariants("release", "debug")
+    targetHierarchy.default()
+    jvm().mainRun {
+        mainClass = "org.kobjects.konsole.demo.RockPaperScissorsAppKt"
+
+    }
+
+    androidTarget {
+        publishLibraryVariants("release")
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "1.8"
+            }
+        }
     }
     iosX64()
     iosArm64()
-    iosSimulatorArm64() // sure all ios dependencies support this target
+    iosSimulatorArm64()
+    linuxX64()
 
-    jvm("desktop")
-
-    js(IR) {
-   //     useCommonJs()
-        browser()
-    }
-
-
-    cocoapods {
-        summary = "Some description for the Demo Module"
-        homepage = "Link to the Demo Module homepage"
-        ios.deploymentTarget = "14.1"
-        podfile = project.file("../iosApp/Podfile")
-        framework {
-            baseName = "demo"
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        moduleName = "konsoleDemo"
+        browser {
+            commonWebpackConfig {
+                outputFileName = "konsoleDemo.js"
+                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                    static = (static ?: mutableListOf()).apply {
+                        // Serve sources to debug inside browser
+                        add(project.projectDir.path)
+                    }
+                }
+            }
         }
     }
-    
+
+
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("org.kobjects.ktxml:core:0.2.2")
-                implementation("org.kobjects.parserlib:examples:0.7.4")
                 implementation(project(":core"))
             }
         }
-        val iosX64Main by getting
-        val iosArm64Main by getting
-        val iosSimulatorArm64Main by getting
-        val iosMain by creating {
-            dependsOn(commonMain)
-            iosX64Main.dependsOn(this)
-            iosArm64Main.dependsOn(this)
-            iosSimulatorArm64Main.dependsOn(this)
+        val commonTest by getting {
+            dependencies {
+                implementation(libs.kotlin.test)
+            }
         }
-        val desktopMain by getting
-        val desktopTest by getting
-
-        val jsMain by getting
-        val jsTest by getting
     }
 }
 
-
 android {
-    compileSdk = 33
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+    namespace = "org.kobjects.konsole.composedemo"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
-        minSdk = 21
-        targetSdk = 33
+        minSdk = libs.versions.android.minSdk.get().toInt()
     }
-    namespace = "org.kobjects.konsole.demo"
+}
+
+// Connect to system.in when running via gradle.
+tasks.withType<JavaExec>() {
+    standardInput = System.`in`
 }

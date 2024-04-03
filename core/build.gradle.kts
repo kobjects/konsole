@@ -1,102 +1,62 @@
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
+
 plugins {
-    kotlin("multiplatform")
-    kotlin("native.cocoapods")
-    id("com.android.library")
-    id("maven-publish")
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.androidLibrary)
+    id("module.publication")
 }
 
-group = "org.kobjects.konsole"
-version = "0.3.0"
-
 kotlin {
-    android {
-        publishLibraryVariants("release", "debug")
+    targetHierarchy.default()
+    jvm()
+    androidTarget {
+        publishLibraryVariants("release")
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "1.8"
+            }
+        }
     }
     iosX64()
     iosArm64()
-    iosSimulatorArm64() // sure all ios dependencies support this target
+    iosSimulatorArm64()
+    linuxX64()
 
-    jvm("desktop")
-
-    js(IR) {
-      //  useCommonJs()
-        browser()
-    }
-
-
-    cocoapods {
-        summary = "Some description for the Shared Module"
-        homepage = "Link to the Shared Module homepage"
-        ios.deploymentTarget = "14.1"
-        podfile = project.file("../iosApp/Podfile")
-        framework {
-            baseName = "core"
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+   //     moduleName = "konsole"
+        browser {
+     /*       commonWebpackConfig {
+                outputFileName = "konsole.js"
+                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                    static = (static ?: mutableListOf()).apply {
+                        // Serve sources to debug inside browser
+                        add(project.projectDir.path)
+                    }
+                }
+            }*/
         }
     }
-    
+
     sourceSets {
-        val commonMain by getting
-        /*
+        val commonMain by getting {
+            dependencies {
+                //put your multiplatform dependencies here
+            }
+        }
         val commonTest by getting {
             dependencies {
-                implementation(kotlin("test-common"))
-                implementation(kotlin("test-annotations-common"))
+                implementation(libs.kotlin.test)
             }
         }
-        val androidMain by getting {
-            dependencies {
-                implementation("androidx.compose.ui:ui:1.0.5")
-                // Tooling support (Previews, etc.)
-                implementation("androidx.compose.ui:ui-tooling:1.0.5")
-                // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
-                implementation("androidx.compose.foundation:foundation:1.0.5")
-                // Material Design
-                implementation("androidx.compose.material:material:1.0.5")
-                // Material design icons
-                implementation("androidx.compose.material:material-icons-core:1.0.5")
-                implementation("androidx.compose.material:material-icons-extended:1.0.5")
-            }
-        }
-        val androidTest by getting {
-            dependencies {
-                implementation(kotlin("test-junit"))
-                implementation("junit:junit:4.13.2")
-            }
-        }*/
-        val iosX64Main by getting
-        val iosArm64Main by getting
-        val iosSimulatorArm64Main by getting
-        val iosMain by creating {
-            dependsOn(commonMain)
-            iosX64Main.dependsOn(this)
-            iosArm64Main.dependsOn(this)
-            iosSimulatorArm64Main.dependsOn(this)
-        }/*
-        val iosX64Test by getting
-        val iosArm64Test by getting
-        //val iosSimulatorArm64Test by getting
-        val iosTest by creating {
-            dependsOn(commonTest)
-            iosX64Test.dependsOn(this)
-            iosArm64Test.dependsOn(this)
-            //iosSimulatorArm64Test.dependsOn(this)
-        }
-
-         */
-
-
-        val desktopMain by getting
-        val desktopTest by getting
     }
 }
 
-
 android {
-    compileSdk = 33
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    defaultConfig {
-        minSdk = 21
-        targetSdk = 33
-    }
     namespace = "org.kobjects.konsole"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    defaultConfig {
+        minSdk = libs.versions.android.minSdk.get().toInt()
+    }
 }

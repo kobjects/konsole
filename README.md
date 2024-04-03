@@ -1,26 +1,33 @@
 # Look, no UI!
 
-Many programs don't require a sophisiticated UI.
+Many programs don't require a sophisticated UI.
 
-This project provides a super simple Kotlin console API -- and a bunch of implementaitons for various platforms -- including Web, Android, iOS and a "plain" command line.
+This project provides a super simple Kotlin console API -- and simple console- and compose-based
+implementations for Web, Android, iOS and desktop/JVM.
 
 ```
-interface Konsole {
-    fun write(s: String)
-    suspend fun read(): String
+open class Konsole {
+    open fun println(message: Any? = "")
+    open fun readln(label: String? = null, callback: (String) -> Unit)
+    suspend fun readln(label: String? = null): String  // Implemented based on the callback variant
 }
 ```
 
-The goal is to make it super easy to write simple Kotlin programs that run on all platforms and look "ok" utilizing a chat-like appearence. 
+The goal is to make it super easy to write simple Kotlin programs that run on all platforms and look
+"ok" utilizing a chat-like appearance. 
 
-Of course a console API is not the "right" interface for everything, but it might be a good starting point to test
-out an idea or to demonstrate a programming concept withou investing heavily into UI development. And there are 
-modern applications for this kind of dialog interface, for instance assistant plugins or chat bots.
+Of course a console API is not the "right" interface for everything, but it might be a good starting
+point to test out an idea or to demonstrate a programming concept without investing heavily into UI
+development. And there are modern applications using this kind of dialog interface, for instance 
+assistant plugins or chat bots.
 
-Currently the shared folder contains a bunch of demo apps (so far mostly based on Basic programs from the 101 book). 
+## Gradle targets for running the demos
 
-The demos can be seen in action here: https://kobjects.org/konsole/demo/
+`:composeApp:run` -- run the "Desktop" demo as a compose GUI app
 
-The reason that the demos are included in the shared folder (opposed to a separate demo module) is a problem with iOS module organization and hopefully 
-this can be fixed soon. 
+`-q --console=plain :demo:jvmRun` -- run the JVM command line demo
+
+`:composeApp:wasmJsBrowserDevelopmentRun` -- run the compose browser demo
+
+
 

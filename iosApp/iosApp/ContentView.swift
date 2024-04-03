@@ -1,26 +1,21 @@
+import UIKit
 import SwiftUI
+import ComposeApp
 
-import demo
+struct ComposeView: UIViewControllerRepresentable {
+    func makeUIViewController(context: Context) -> UIViewController {
+        MainViewControllerKt.MainViewController()
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+}
 
 struct ContentView: View {
-	let greet = "HelloWorld"
-
-	var body: some View {
-	    NavigationView {
-	        List(Demo.Companion.shared.ALL, id: \.name) { demo in
-	            NavigationLink {
-    		        DemoView(demo: demo)
-	    	    } label: {
-	    	        Text(demo.name)
-	    	    }
-		    }
-            .navigationTitle("KonsoleDemo")
-		}
-	}
+    var body: some View {
+        ComposeView()
+                .ignoresSafeArea(.keyboard) // Compose has own keyboard handler
+    }
 }
 
-struct MenuView_Previews: PreviewProvider {
-	static var previews: some View {
-		ContentView()
-	}
-}
+
+

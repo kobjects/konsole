@@ -1,91 +1,123 @@
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
+
 plugins {
-    id("com.android.library")
-    kotlin("android")
-    id("maven-publish")
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.jetbrainsCompose)
 }
 
+kotlin {
 
-group = "org.kobjects.konsole"
-version = "0.3.0"
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+    }
+    
+    androidTarget {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "11"
+            }
+        }
+    }
+    
+    jvm("desktop")
+    
+    listOf(
+        iosX64(),
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "Compose"
+            isStatic = true
+        }
+    }
 
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        moduleName = "composeKonsole"
+        browser {
+            commonWebpackConfig {
+                outputFileName = "composeKonsole.js"
+                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                    static = (static ?: mutableListOf()).apply {
+                        // Serve sources to debug inside browser
+                        add(project.projectDir.path)
+                    }
+                }
+            }
+        }
+    }
+    
+    sourceSets {
+        val desktopMain by getting
+        
+        androidMain.dependencies {
+            implementation(libs.compose.ui.tooling.preview)
+            implementation(libs.androidx.activity.compose)
+        }
+        commonMain.dependencies {
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material)
+            implementation(compose.ui)
+            implementation(compose.components.resources)
+            implementation(compose.components.uiToolingPreview)
 
-dependencies {
-    implementation("androidx.compose.compiler:compiler:1.3.2")
+            implementation(project(":core"))
+        }
+        desktopMain.dependencies {
+            implementation(compose.desktop.currentOs)
+        }
+    }
 }
 
 android {
-
     namespace = "org.kobjects.konsole.compose"
-    compileSdk = 33
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    defaultConfig {
+        minSdk = libs.versions.android.minSdk.get().toInt()
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+/*
+    namespace = "org.kobjects.konsole.compose"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        minSdk = 21
-        targetSdk = 33
+        applicationId = "org.kobjects.konsole.compose"
+        minSdk = libs.versions.android.minSdk.get().toInt()
+        targetSdk = libs.versions.android.targetSdk.get().toInt()
+        versionCode = 1
+        versionName = "1.0"
+    }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
     }
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
         }
     }
-    buildFeatures {
-        compose = true
-    }
-
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
-    buildFeatures {
-        compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.3.2"
+    dependencies {
+        debugImplementation(libs.compose.ui.tooling)
     }
 
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-
-    publishing {
-        multipleVariants {
-            allVariants()
-        }
-    }
+ */
 }
 
-
-publishing {
-    publications {
-        register<MavenPublication>("release") {
-            groupId = "org.kobjects.konsole"
-            artifactId = "compose"
-            version = "0.3.0"
-
-            afterEvaluate {
-                from(components["release"])
-            }
-        }
-        repositories {
-            mavenLocal()
-        }
-    }
-
+compose.desktop {
 }
 
-dependencies {
-    implementation(project(":core"))
-    implementation("androidx.activity:activity-compose:1.6.1")
-    implementation("androidx.compose.ui:ui:1.3.2")
-    // Tooling support (Previews, etc.)
-    implementation("androidx.compose.ui:ui-tooling:1.3.2")
-    // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
-    implementation("androidx.compose.foundation:foundation:1.3.1")
-    // Material Design
-    implementation("androidx.compose.material:material:1.3.1")
-    // Material design icons
-    implementation("androidx.compose.material:material-icons-core:1.3.1")
-    implementation("androidx.compose.material:material-icons-extended:1.3.1")
-    implementation("androidx.appcompat:appcompat:1.5.1")
+compose.experimental {
 }
-
-
