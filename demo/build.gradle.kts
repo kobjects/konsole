@@ -10,7 +10,7 @@ plugins {
 kotlin {
     targetHierarchy.default()
     jvm().mainRun {
-        mainClass = "org.kobjects.konsole.demo.RockPaperScissorsAppKt"
+        mainClass = "org.kobjects.konsole.demo.RockPaperScissorsKt"
 
     }
 

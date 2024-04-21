@@ -3,6 +3,10 @@ package org.kobjects.konsole.demo
 import org.kobjects.konsole.Konsole
 import kotlin.random.Random
 
+fun main() {
+    rockPaperScissors()
+}
+
 fun rockPaperScissors(konsole: Konsole = Konsole()) {
     konsole.readln("Rock, paper or scissors?") {
         val computerChoice = Choice.values()[Random.nextInt(0, 3)]
