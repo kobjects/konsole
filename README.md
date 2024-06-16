@@ -7,7 +7,7 @@ Many programs don't require a sophisticated UI.
 This project provides a super simple Kotlin console API -- and simple console- and compose-based
 implementations for Web, Android, iOS and desktop/JVM.
 
-```
+```kt
 open class Konsole {
     open fun println(message: Any? = "")
     open fun readln(label: String? = null, callback: (String) -> Unit)
