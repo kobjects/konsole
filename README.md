@@ -29,5 +29,13 @@ assistant plugins or chat bots.
 
 `:composeApp:wasmJsBrowserDevelopmentRun` -- run the compose browser demo
 
+## Platform Specific Issues
+
+### Android 
+
+- Add `android:windowSoftInputMode="adjustResize"` to the `Activity`-Element in `AndroidManifest.xml` in order 
+  to ensure that the console history remains visible during input.
+
+
 
 

@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsCompose)
+    id("module.publication")
 }
 
 kotlin {

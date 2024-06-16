@@ -27,7 +27,7 @@ val START_SHAPE = RoundedCornerShape(8.dp).copy(bottomStart = CornerSize(0))
 
 @Composable
 fun RenderKonsole(
-    modifier: Modifier = Modifier.fillMaxSize(1f),
+    modifier: Modifier = Modifier.fillMaxSize(),
     konsole: ComposeKonsole
 ) {
     var errorMessage = remember { mutableStateOf("") }
