@@ -6,7 +6,7 @@ plugins {
 
 allprojects {
     group = "org.kobjects.konsole"
-    version = "0.8.0"
+    version = "0.8.1"
 }
 
 val secretPropsFile = project.rootProject.file("local.properties")

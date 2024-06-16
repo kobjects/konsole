@@ -29,13 +29,17 @@ Demo application source code: [demo/src/commonMain/kotlin/org/kobjects/konsole/d
 
 Compose application source code: [commonMain/kotlin/App.kt](https://github.com/kobjects/konsole/blob/main/composeApp/src/commonMain/kotlin/App.kt)
 
-## Gradle Targets for Running the Demos
+## Gradle Targets for Running the Demo
 
 `:composeApp:run` -- run the "Desktop" demo as a compose GUI app
 
 `-q --console=plain :demo:jvmRun` -- run the JVM command line demo
 
 `:composeApp:wasmJsBrowserDevelopmentRun` -- run the compose browser demo
+
+## Other Examples
+
+- [BASIK](https://github.com/stefanhaustein/basik/)
 
 ## FAQ
 
