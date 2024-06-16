@@ -1,7 +1,6 @@
 # Look, no UI!
 
-[![Maven Central: Core](https://maven-badges.herokuapp.com/maven-central/org.kobjects.konsole/core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.kobjects.konsole/core)
-[![Maven Central: Compose](https://maven-badges.herokuapp.com/maven-central/org.kobjects.konsole/compose/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.kobjects.konsole/compose)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.kobjects.konsole/core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.kobjects.konsole/core)
 
 Many programs don't require a sophisticated UI.
 
