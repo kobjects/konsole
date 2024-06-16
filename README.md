@@ -23,13 +23,15 @@ point to test out an idea or to demonstrate a programming concept without invest
 development. And there are modern applications using this kind of dialog interface, for instance 
 assistant plugins or chat bots.
 
+## Rock Paper Scissors Demo
+
 Web demo: [https://kobjects.org/konsole](https://kobjects.org/konsole)
 
 Demo application source code: [demo/src/commonMain/kotlin/org/kobjects/konsole/demo/RockPaperScissors.kt](https://github.com/kobjects/konsole/blob/main/demo/src/commonMain/kotlin/org/kobjects/konsole/demo/RockPaperScissors.kt)
 
 Compose application source code: [commonMain/kotlin/App.kt](https://github.com/kobjects/konsole/blob/main/composeApp/src/commonMain/kotlin/App.kt)
 
-## Gradle Targets for Running the Demo
+### Gradle Targets for Running the Demo
 
 `:composeApp:run` -- run the "Desktop" demo as a compose GUI app
 
