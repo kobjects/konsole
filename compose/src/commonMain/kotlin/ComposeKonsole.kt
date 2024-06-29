@@ -11,18 +11,17 @@ import kotlin.coroutines.resume
 class ComposeKonsole : Konsole() {
     val entries = mutableStateListOf<Entry>()
     var requests = mutableStateListOf<Request>()
-    var inputVisible = mutableStateOf(true)
 
     override fun println(message: Any?) {
         entries.add(Entry(message?.toString() ?: "null", input = false))
     }
 
-    override fun readln(message: String?, callback: (String) -> Unit) {
-        requests.add(Request(message) { callback(it) })
+    override fun readValidated(message: String?, validation: (String) -> String, callback: (String) -> Unit) {
+        requests.add(Request(message, validation) { callback(it) })
     }
 
-    override suspend fun readln(message: String?) = suspendCancellableCoroutine<String> { continuation ->
-        val request = Request(message) { continuation.resume(it) }
+    override suspend fun readValidated(message: String?, validation: (String) -> String) = suspendCancellableCoroutine<String> { continuation ->
+        val request = Request(message, validation) { continuation.resume(it) }
        requests.add(request)
         continuation.invokeOnCancellation {
             requests.remove(request)
@@ -34,5 +33,6 @@ class ComposeKonsole : Konsole() {
 
     data class Request(
         val label: String?,
+        val validation: (String) -> String,
         val consumer: (String) -> Unit)
 }

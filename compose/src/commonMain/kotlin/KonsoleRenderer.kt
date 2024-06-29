@@ -8,9 +8,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -18,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -30,7 +32,8 @@ fun RenderKonsole(
     modifier: Modifier = Modifier.fillMaxSize(),
     konsole: ComposeKonsole
 ) {
-    var errorMessage = remember { mutableStateOf("") }
+    val errorMessage = remember { mutableStateOf("") }
+    val submitAttempted = remember { mutableStateOf(false) }
 
     Column(modifier) {
         val listState = rememberLazyListState()
@@ -50,7 +53,7 @@ fun RenderKonsole(
                         Text(
                             AnsiConverter.ansiToAnnotatedString(entry.value),
                             modifier = Modifier.padding(8.dp),
-                            textAlign = if (entry.input) TextAlign.End else TextAlign.Start
+                            textAlign = if (entry.input && !entry.value.contains("\n")) TextAlign.End else TextAlign.Start
                         )
                     }
                 }
@@ -59,40 +62,64 @@ fun RenderKonsole(
 
         val textState = remember { mutableStateOf(TextFieldValue()) }
 
-
         fun submit() {
             val text = textState.value.text
-            konsole.entries.add(ComposeKonsole.Entry(text, true))
             val request = konsole.requests.last()
+            errorMessage.value = request.validation(text)
 
-            textState.value = TextFieldValue()
-            konsole.requests.removeLast()
-            request.consumer(text)
+            if (errorMessage.value.isEmpty()) {
+                submitAttempted.value = false
+                konsole.entries.add(ComposeKonsole.Entry(text, true))
+
+                textState.value = TextFieldValue()
+                konsole.requests.removeLast()
+                request.consumer(text)
+            } else {
+                submitAttempted.value = true
+            }
         }
 
-        if (konsole.inputVisible.value) {
+        if (konsole.requests.isNotEmpty()) {
+            val request = konsole.requests.last()
             Divider()
             Row(
                 Modifier.background(Color(0x77ffffff)),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                val topRequest = konsole.requests.lastOrNull()
                 TextField(
                     modifier = Modifier.weight(1f),
                     colors = TextFieldDefaults.textFieldColors(
                         backgroundColor = Color.Transparent
                     ),
                     isError = errorMessage.value != "",
-                    enabled = konsole.requests.isNotEmpty(),
+                    // enabled = konsole.requests.isNotEmpty(),
                     value = textState.value,
                     singleLine = true,
                     keyboardActions = KeyboardActions(
+                        onGo = { submit() },
                         onDone = { submit() },
                         onSend = { submit() }),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Go
+                    ),
                     onValueChange = {
                         textState.value = it
+                        if (submitAttempted.value) {
+                            errorMessage.value = request.validation(it.text)
+                        }
                     },
-                    label = { if (topRequest != null && topRequest.label != null) Text(topRequest.label) }
+                    label = {
+                        if (errorMessage.value.isNotEmpty()) {
+                            Text(errorMessage.value)
+                        } else if (request.label != null) {
+                            Text(request.label)
+                        }
+                    },
+                    trailingIcon = {
+                        if (errorMessage.value.isNotEmpty()) {
+                            Icon(Icons.Default.Error, errorMessage.value)
+                        }
+                    }
                 )
                 IconButton(
                     modifier = Modifier.padding(4.dp),
@@ -101,7 +128,7 @@ fun RenderKonsole(
                         submit()
                     }) {
                     // Text("Enter")
-                    Icon(Icons.Default.Done, "Enter")
+                    Icon(Icons.Default.SubdirectoryArrowLeft, "Enter")
                 }
             }
         }

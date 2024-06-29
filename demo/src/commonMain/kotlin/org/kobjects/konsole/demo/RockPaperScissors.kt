@@ -3,16 +3,18 @@ package org.kobjects.konsole.demo
 import org.kobjects.konsole.Konsole
 import kotlin.random.Random
 
+const val ERROR_MESSAGE = "'rock', 'paper' or 'scissors' expected."
+
 fun main() {
     rockPaperScissors()
 }
 
 fun rockPaperScissors(konsole: Konsole = Konsole()) {
-    konsole.readln("Rock, paper or scissors?") {
+    konsole.readValidated("Rock, paper or scissors?", { if (parse(it) == null) ERROR_MESSAGE else "" }) {
         val computerChoice = Choice.values()[Random.nextInt(0, 3)]
         val userChoice = parse(it)
         if (userChoice == null) {
-            konsole.println("'rock', 'paper' or 'scissors' expected.")
+            konsole.println(ERROR_MESSAGE)
         } else {
             konsole.println("I chose ${computerChoice.name.lowercase()}.")
             konsole.println(compare(userChoice, computerChoice))
